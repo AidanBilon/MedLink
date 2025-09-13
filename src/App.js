@@ -8,6 +8,7 @@ import Footer from "./components/Footer";
 import Home from "./views/Home";
 import Profile from "./views/Profile";
 import ExternalApi from "./views/ExternalApi";
+import HealthTips from "./views/HealthTips";
 import { useAuth0 } from "@auth0/auth0-react";
 import history from "./utils/history";
 import { AppointmentsProvider } from "./utils/AppointmentsContext";
@@ -51,6 +52,14 @@ const App = () => {
                 render={() => (
                   <Container className="mt-5">
                     <ExternalApi />
+                  </Container>
+                )}
+              />
+              <Route
+                path="/health-tips"
+                render={() => (
+                  <Container className="mt-5">
+                    <HealthTips />
                   </Container>
                 )}
               />
