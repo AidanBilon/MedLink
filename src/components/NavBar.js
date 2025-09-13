@@ -40,7 +40,7 @@ const NavBar = () => {
   return (
     <div className="nav-container">
       <Navbar color="light" light expand="md" container={false}>
-        <Container>
+    <Container className="w-100">
           <NavbarBrand className="logo" />
           <NavbarToggler onClick={toggle} />
           <Collapse isOpen={isOpen} navbar>
@@ -165,7 +165,7 @@ const NavBar = () => {
               </Nav>
             )}
           </Collapse>
-        </Container>
+    </Container>
       </Navbar>
     </div>
   );

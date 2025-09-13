@@ -33,13 +33,27 @@ const App = () => {
     <Router history={history}>
       <div id="app" className="d-flex flex-column h-100">
         <NavBar />
-        <Container className="flex-grow-1 mt-5">
+    <div className="flex-grow-1">
           <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="/profile" component={Profile} />
-            <Route path="/external-api" component={ExternalApi} />
+      <Route path="/" exact component={Home} />
+            <Route
+              path="/profile"
+              render={() => (
+        <Container className="mt-5">
+                  <Profile />
+                </Container>
+              )}
+            />
+            <Route
+              path="/external-api"
+              render={() => (
+        <Container className="mt-5">
+                  <ExternalApi />
+                </Container>
+              )}
+            />
           </Switch>
-        </Container>
+        </div>
         <Footer />
       </div>
     </Router>
