@@ -7,7 +7,9 @@ import { getConfig } from "../config";
 import Loading from "../components/Loading";
 
 export const ExternalApiComponent = () => {
-  const { setAppointments } = useAppointments();
+  // Defensive: context may be undefined in isolated tests if provider not mounted
+  const ctx = useAppointments();
+  const setAppointments = ctx && ctx.setAppointments ? ctx.setAppointments : () => {};
   const { apiOrigin = "http://localhost:3001", audience } = getConfig();
 
   const [state, setState] = useState({

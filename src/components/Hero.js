@@ -25,10 +25,10 @@ const Hero = () => {
   }
 
   return (
-    <div className="text-center hero my-5">
+    <div className="text-center hero mt-4 mb-1">
       <img className="mb-3 app-logo" src={logo} alt="MedLink logo" width="120" />
       <h1 className="mb-4">MedLink</h1>
-  <p className="lead">Describe your symptoms for basic triage guidance below.</p>
+  <p className="lead mb-2">Describe your symptoms for basic triage guidance below.</p>
   <p className="small text-muted mt-3 disclaimer">Disclaimer: This is informational only and not a medical diagnosis. The scheduled "Appointments" are fictitious, being used only for demonstration purposes and they will NOT be honoured at any of the example clinics. If you think this may be an emergency call 911 or go to the nearest emergency department immediately.</p>
     </div>
   );

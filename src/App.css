@@ -128,33 +128,35 @@ body { margin:0; }
   position: relative;
   padding-bottom: 3.5rem; /* room for the disclaimer */
 }
+/* Disclaimer: center relative to center-col when flex-desktop active */
 .hero .disclaimer {
   position: fixed;
   bottom: 0.75rem;
-  left: 1rem;
-  right: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100%, 1200px);
   text-align: center;
   background: rgba(255,255,255,0.95);
   padding: 0.5rem 1rem;
   margin: 0 auto;
-  max-width: none; /* allow full width */
+  max-width: 100%;
   color: rgba(0,0,0,0.7);
   box-shadow: 0 2px 6px rgba(0,0,0,0.06);
   border-radius: 6px;
   z-index: 1050;
 }
 
+/* Wide screens: just increase horizontal padding but keep centered */
 @media (min-width: 1500px) {
-  /* On wide screens, span between sidebars (2 columns each ~16.6667%) */
-  .hero .disclaimer {
-    left: calc(16.6667% + 1rem);
-    right: calc(16.6667% + 1rem);
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
+  .hero .disclaimer { padding-left: 2rem; padding-right: 2rem; }
 }
 
 /* Full-width landing disclaimer that sits below the layout */
+/* Footer styles */
+.footer-icon { height: 16px; width: 16px; vertical-align: -2px; margin-right: 6px; }
+.app-footer { padding-bottom: 6rem; }
+/* Make footer lines tighter vertically */
+.app-footer p { margin-top: 0.15rem; margin-bottom: 0.15rem; }
 
 
 /* Force triage wrapper wider if other rules are constraining it. This uses !important
@@ -203,6 +205,18 @@ body { margin:0; }
   background: #fff;
 }
 
+/* Center column styling (if not already present) */
+.landing-layout.flex-desktop .flex-main .center-col {
+  --center-col-width: 1500px;
+  width: min(var(--center-col-width), 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Utility: fine-tuned gap between hero and triage */
+.hero + .triage-wrapper { margin-top: 8px !important; }
+
 /* Unified center column controlling Hero + ChatTriage width */
 .landing-layout.flex-desktop .flex-main .center-col {
   --center-col-width: 1500px; /* adjust this single value */
@@ -224,9 +238,7 @@ body { margin:0; }
 /* Removed old clamp-based width rule now that center-col governs width */
 
 /* Adjust disclaimer span logic: span only main area width, already center-aligned. For ultra-wide, cap width */
-.landing-layout.flex-desktop .hero .disclaimer {
-  left: auto; right: auto; max-width: 1200px; width: calc(100% - 2rem); margin-left: auto; margin-right: auto;
-}
+/* Redundant rule removed; centering handled above */
 
 /* Responsive fallback: below lg break back to stacked columns */
 @media (max-width: 991.98px) {

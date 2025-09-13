@@ -110,7 +110,7 @@ export default function ChatTriage() {
 
 const styles = {
   // allow CSS to control final width; use full width of parent
-  wrapper: { width: '100%', margin: '24px auto', textAlign: 'left', border: '1px solid #e2e8f0', borderRadius: 12, display: 'flex', flexDirection: 'column', background: '#ffffff', boxShadow: '0 4px 10px rgba(0,0,0,0.04)' },
+  wrapper: { width: '100%', margin: '4px auto 20px', textAlign: 'left', border: '1px solid #e2e8f0', borderRadius: 12, display: 'flex', flexDirection: 'column', background: '#ffffff', boxShadow: '0 4px 10px rgba(0,0,0,0.04)' },
   header: { padding: '12px 16px', borderBottom: '1px solid #e2e8f0', fontWeight: 600, fontSize: 15, background:'#f8fafc', borderTopLeftRadius:12, borderTopRightRadius:12 },
   messages: { padding: 16, overflowY: 'auto', maxHeight: 320 },
   msg: { padding: '12px 14px', borderRadius: 8, marginBottom: 12, position: 'relative', whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.4, border: '1px solid #e2e8f0' },
