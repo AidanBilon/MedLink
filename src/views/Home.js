@@ -2,6 +2,7 @@ import React, { Fragment } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import Hero from "../components/Hero";
+import ChatTriage from "../components/ChatTriage";
 import LeftSidebar from "../components/LeftSidebar";
 import RightSidebar from "../components/RightSidebar";
 import UnauthenticatedLanding from "../components/UnauthenticatedLanding";
@@ -21,17 +22,18 @@ const Home = () => {
 
   return (
     <Fragment>
-      <div className="landing-layout mt-4">
-        <div className="row gx-0">
-          <div className="col-12 col-lg-2 sidebar-col">
-            <LeftSidebar />
-          </div>
-          <div className="col-12 col-lg-8 main-col py-4">
+      <div className="landing-layout flex-desktop mt-4">
+        <div className="sidebar-col left-fixed">
+          <LeftSidebar />
+        </div>
+        <div className="main-col flex-main">
+          <div className="center-col">
             <Hero />
+            <ChatTriage />
           </div>
-          <div className="col-12 col-lg-2 sidebar-col">
-            <RightSidebar />
-          </div>
+        </div>
+        <div className="sidebar-col right-fixed">
+          <RightSidebar />
         </div>
       </div>
     </Fragment>
