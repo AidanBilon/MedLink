@@ -55,7 +55,8 @@ body { margin:0; }
 
 /* Landing layout (full-bleed sidebars) */
 .landing-layout .sidebar-col { padding-left: 0; padding-right: 0; }
-.landing-layout .sidebar { height: 100%; min-height: calc(100vh - 120px); background: #f5f7fa; border-right: 1px solid #e2e6ea; }
+/* Give a small inner gutter inside sidebars so content doesn't touch edges */
+.landing-layout .sidebar { padding-left: 0.5rem; padding-right: 0.5rem; height: 95%; min-height: 60vh; background: #f5f7fa; border-right: 1px solid #e2e6ea; }
 .landing-layout .sidebar-right { border-right: 0; border-left: 1px solid #e2e6ea; }
 .landing-layout .main-col { background: #fff; }
 
@@ -143,7 +144,7 @@ body { margin:0; }
   z-index: 1050;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1500px) {
   /* On wide screens, span between sidebars (2 columns each ~16.6667%) */
   .hero .disclaimer {
     left: calc(16.6667% + 1rem);
@@ -154,4 +155,86 @@ body { margin:0; }
 }
 
 /* Full-width landing disclaimer that sits below the layout */
+
+
+/* Force triage wrapper wider if other rules are constraining it. This uses !important
+   so it will override inline styles or other declarations that might be limiting width. */
+.main-col .hero .triage-wrapper {
+  max-width: none !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+/* --- New flex-based desktop layout to allow wider main content without Bootstrap 12-col limits --- */
+.landing-layout.flex-desktop {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  gap: 0; /* no gutters */
+}
+
+/* Fixed sidebars (adjust width as needed) */
+.landing-layout.flex-desktop .left-fixed,
+.landing-layout.flex-desktop .right-fixed {
+  flex: 0 0 350px; /* was ~2 cols (~16.67% of typical 1400px => 233px) */
+  max-width: 350px;
+  min-width: 300px;
+  background: #f5f7fa;
+  border-right: 1px solid #e2e6ea;
+  display: flex;
+  flex-direction: column;
+  min-height: 70vh;
+}
+.landing-layout.flex-desktop .right-fixed { border-right: 0; border-left: 1px solid #e2e6ea; }
+
+/* Scroll within sidebars if needed */
+.landing-layout.flex-desktop .left-fixed, .landing-layout.flex-desktop .right-fixed { overflow-y: auto; }
+
+/* Main flexible area grows and can become very wide */
+.landing-layout.flex-desktop .flex-main {
+  flex: 1 1 auto;
+  min-width: 0; /* allow children to shrink if needed */
+  padding: 0 1.25rem; /* slight internal horizontal padding */
+  background: #fff;
+}
+
+/* Unified center column controlling Hero + ChatTriage width */
+.landing-layout.flex-desktop .flex-main .center-col {
+  --center-col-width: 1500px; /* adjust this single value */
+  width: min(var(--center-col-width), 100%);
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* let children set their own alignment */
+}
+
+/* Make triage fill center width completely */
+.landing-layout.flex-desktop .flex-main .center-col .triage-wrapper {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Widen triage wrapper inside new layout – choose a clamp so it can expand but stays readable */
+/* Removed old clamp-based width rule now that center-col governs width */
+
+/* Adjust disclaimer span logic: span only main area width, already center-aligned. For ultra-wide, cap width */
+.landing-layout.flex-desktop .hero .disclaimer {
+  left: auto; right: auto; max-width: 1200px; width: calc(100% - 2rem); margin-left: auto; margin-right: auto;
+}
+
+/* Responsive fallback: below lg break back to stacked columns */
+@media (max-width: 991.98px) {
+  .landing-layout.flex-desktop { flex-direction: column; }
+  .landing-layout.flex-desktop .left-fixed,
+  .landing-layout.flex-desktop .right-fixed { flex: 0 0 auto; max-width: 100%; min-width: 0; border: none; border-top: 1px solid #e2e6ea; }
+  .landing-layout.flex-desktop .flex-main { padding: 0 0.75rem; }
+  .landing-layout.flex-desktop .hero .disclaimer { position: static; width: 100%; max-width: none; }
+  .landing-layout.flex-desktop .flex-main .triage-wrapper { width: 100%; }
+}
 
