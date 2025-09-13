@@ -11,8 +11,8 @@ const Footer = () => (
       <img src={medlinkLogo} alt="MedLink" height="28" />
     </div>
     <p>Developed by Aidan and Zara </p>
-  <p>Auth by <a href="https://auth0.com"><img src={AUTH_ICON} alt="Auth0" className="footer-icon" /> Auth0</a></p>
-  <p>Chat by <a href="https://gemini.google.com/app"><img src={CHAT_ICON} alt="Gemini" className="footer-icon" /> Gemini</a></p>
+  <p>Auth by <a href="https://auth0.com"> Auth0  <img src={AUTH_ICON} alt="Auth0" className="footer-icon" /></a></p>
+  <p>Chat by <a href="https://gemini.google.com/app">Gemini  <img src={CHAT_ICON} alt="Gemini" className="footer-icon" /> </a></p>
   <p>.</p>
   <p>.</p>
   <p>.</p>

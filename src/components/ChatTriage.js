@@ -1,4 +1,6 @@
 import React, { useState, useRef } from 'react';
+import logo from '../assets/logo.svg';
+import medlinkLogo from '../assets/medlink_logo_black.png';
 import { useAuth0 } from '@auth0/auth0-react';
 import { getConfig } from '../config';
 
@@ -11,7 +13,7 @@ const severityColors = {
 };
 
 export default function ChatTriage() {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated, user } = useAuth0();
   const { apiOrigin = 'http://localhost:3001', audience } = getConfig();
   const [messages, setMessages] = useState([{
     role: 'assistant',
@@ -82,14 +84,30 @@ export default function ChatTriage() {
     <div className="triage-wrapper" style={styles.wrapper}>
       <div style={styles.header}>Triage Assistant (Gemini)</div>
       <div ref={listRef} style={styles.messages}>
-        {messages.map((m, i) => (
-          <div key={i} style={{ ...styles.msg, background: m.role === 'assistant' ? '#f7fafc' : '#edf2f7' }}>
-            {m.severity && (
-              <span style={{ ...styles.severityBadge, background: severityColors[m.severity] || '#444' }}>{m.severity}</span>
-            )}
-            <pre style={styles.pre}>{m.content}</pre>
-          </div>
-        ))}
+        {messages.map((m, i) => {
+          const isAssistant = m.role === 'assistant';
+          return (
+            <div key={i} style={{ ...styles.msgRow }}>
+              {isAssistant && (
+                <img src={logo} alt="assistant" style={styles.avatarLeft} />
+              )}
+              <div style={{ ...styles.msg, background: isAssistant ? '#f7fafc' : '#edf2f7' }}>
+                {m.severity && (
+                  <span style={{ ...styles.severityBadge, background: severityColors[m.severity] || '#444' }}>{m.severity}</span>
+                )}
+                <pre style={styles.pre}>{m.content}</pre>
+              </div>
+              {!isAssistant && (
+                <img
+                  src={(user && user.picture) || medlinkLogo}
+                  alt="you"
+                  style={styles.avatarRight}
+                  onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = medlinkLogo; }}
+                />
+              )}
+            </div>
+          );
+        })}
         {loading && <div style={styles.loading}>Analyzing symptoms...</div>}
       </div>
       <div style={styles.inputRow}>
@@ -112,10 +130,13 @@ const styles = {
   // allow CSS to control final width; use full width of parent
   wrapper: { width: '100%', margin: '4px auto 20px', textAlign: 'left', border: '1px solid #e2e8f0', borderRadius: 12, display: 'flex', flexDirection: 'column', background: '#ffffff', boxShadow: '0 4px 10px rgba(0,0,0,0.04)' },
   header: { padding: '12px 16px', borderBottom: '1px solid #e2e8f0', fontWeight: 600, fontSize: 15, background:'#f8fafc', borderTopLeftRadius:12, borderTopRightRadius:12 },
-  messages: { padding: 16, overflowY: 'auto', maxHeight: 320 },
-  msg: { padding: '12px 14px', borderRadius: 8, marginBottom: 12, position: 'relative', whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.4, border: '1px solid #e2e8f0' },
-  pre: { margin: 0, fontFamily: 'inherit' },
+  messages: { padding: 16, overflowY: 'auto', overflowX: 'hidden', maxHeight: 320 },
+  msg: { padding: '12px 14px', borderRadius: 8, marginBottom: 12, position: 'relative', fontSize: 14, lineHeight: 1.4, border: '1px solid #e2e8f0', overflowWrap: 'break-word', wordBreak: 'break-word' },
+  pre: { margin: 0, fontFamily: 'inherit', whiteSpace: 'pre-wrap', overflowWrap: 'break-word', wordBreak: 'break-word', maxWidth: '100%' },
   severityBadge: { position: 'absolute', top: -10, right: -10, color:'#fff', fontSize: 11, padding: '3px 8px', borderRadius: 20, boxShadow:'0 2px 4px rgba(0,0,0,0.15)' },
+  msgRow: { display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 6 },
+  avatarLeft: { width: 28, height: 28, borderRadius: 6, marginTop: 6, flex: '0 0 28px', objectFit: 'cover', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' },
+  avatarRight: { width: 28, height: 28, borderRadius: 14, marginTop: 6, flex: '0 0 28px', objectFit: 'cover', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' },
   inputRow: { display: 'flex', borderTop: '1px solid #e2e8f0' },
   textarea: { flex: 1, resize: 'vertical', padding: 12, border: 'none', outline: 'none', fontFamily: 'inherit', fontSize: 14 },
   button: { border: 'none', background:'#2563eb', color:'#fff', padding: '0 20px', cursor:'pointer', fontWeight:600 },
