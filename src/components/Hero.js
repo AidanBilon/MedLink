@@ -33,6 +33,8 @@ const Hero = () => {
         This is a sample application that demonstrates an authentication flow for
         an SPA, using <a href="https://reactjs.org">React.js</a>
       </p>
+
+      <p className="small text-muted mt-3 disclaimer">Disclaimer: This is informational, not a medical diagnosis. In emergencies call 911. Information provided here is not a substitute for professional medical advice.</p>
     </div>
   );
 };

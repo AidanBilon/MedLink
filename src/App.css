@@ -98,3 +98,60 @@ body { margin:0; }
 .unauth-landing { max-width: 720px; margin-left: auto; margin-right: auto; }
 .unauth-landing h2 { font-weight: 700; }
 .unauth-landing p.lead { color: #444; }
+
+/* Navbar brand/logo vertical alignment */
+.nav-container .navbar {
+  align-items: center; /* ensure navbar content is centered vertically */
+}
+.nav-container .navbar .logo img {
+  vertical-align: middle;
+  display: inline-block;
+  margin-top: 0; /* reset any extra spacing */
+}
+.nav-container .navbar-brand, .nav-container .navbar .nav {
+  display: flex;
+  align-items: center;
+}
+.nav-user-profile { object-fit: cover; }
+
+/* Hospitals map section */
+.hospitals-map-section { font-size: 0.75rem; }
+.hospitals-map-section .hospital-map-wrapper { position: relative; }
+.hospitals-map-section .hospital-map { height: 180px; width: 100%; border: 1px solid #e2e6ea; border-radius:4px; transition: height 0.25s ease, box-shadow 0.25s ease; overflow:hidden; }
+.hospitals-map-section .hospital-map-wrapper:hover .hospital-map { height: 260px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.hospitals-map-section ul { max-height: 100px; overflow:auto; }
+.hospitals-map-section select { margin-top: 0.25rem; }
+
+/* Position the disclaimer at the bottom of the hero and make it wider */
+.hero {
+  position: relative;
+  padding-bottom: 3.5rem; /* room for the disclaimer */
+}
+.hero .disclaimer {
+  position: fixed;
+  bottom: 0.75rem;
+  left: 1rem;
+  right: 1rem;
+  text-align: center;
+  background: rgba(255,255,255,0.95);
+  padding: 0.5rem 1rem;
+  margin: 0 auto;
+  max-width: none; /* allow full width */
+  color: rgba(0,0,0,0.7);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  border-radius: 6px;
+  z-index: 1050;
+}
+
+@media (min-width: 992px) {
+  /* On wide screens, span between sidebars (2 columns each ~16.6667%) */
+  .hero .disclaimer {
+    left: calc(16.6667% + 1rem);
+    right: calc(16.6667% + 1rem);
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Full-width landing disclaimer that sits below the layout */
+

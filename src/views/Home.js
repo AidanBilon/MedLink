@@ -11,11 +11,11 @@ const Home = () => {
 
   if (!isAuthenticated) {
     return (
-      <Fragment>
-        <div className="container py-5">
-          <UnauthenticatedLanding />
-        </div>
-      </Fragment>
+        <Fragment>
+          <div className="container py-5">
+            <UnauthenticatedLanding />
+          </div>
+        </Fragment>
     );
   }
 

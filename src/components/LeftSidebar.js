@@ -1,6 +1,7 @@
 import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { loadProfile } from "../utils/profileStore";
+import HospitalsMap from "./HospitalsMap";
 
 const LeftSidebar = () => {
   const { user, isAuthenticated } = useAuth0();
@@ -21,7 +22,7 @@ const LeftSidebar = () => {
       </div>
 
       <div className="sidebar-section sidebar-bottom">
-        {/* Placeholder for Google Maps iframe or component */}
+        <HospitalsMap />
       </div>
     </aside>
   );

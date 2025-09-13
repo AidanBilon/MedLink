@@ -103,3 +103,46 @@ If you have found a bug or if you have a feature request, please report them at 
 ## License
 
 This project is licensed under the MIT license. See the [LICENSE](../LICENSE) file for more info.
+
+## Google Maps / Places Integration (Hospitals Sidebar)
+
+The left sidebar can show the closest 3 hospitals on a small map with a dropdown selector. To enable this feature:
+
+### 1. Create a Browser API Key
+
+In Google Cloud Console create a **Browser** key and restrict it:
+* Application restriction: **HTTP referrers** (add `http://localhost:3000/*` for local dev and your production origin(s)).
+* API restrictions: Enable ONLY
+  * Maps JavaScript API
+  * Places API (New)
+
+Optional (future backend distance / geocoding): create a separate **Server** key restricted by IP and add Distance Matrix API and/or Geocoding API.
+
+### 2. Add Key to `.env`
+
+Create (or edit) `.env` in the project root (already git-ignored):
+
+```
+REACT_APP_GOOGLE_MAPS_API_KEY=YOUR_BROWSER_API_KEY_HERE
+```
+
+Restart the dev server after changes so the variable is picked up.
+
+### 3. What the Component Does
+
+`HospitalsMap`:
+* Dynamically loads the Google Maps JS with `libraries=places`.
+* Requests browser geolocation (prompts user). If denied, shows an error message.
+* Performs a Nearby Search for `type=hospital` within 5km.
+* Sorts by straight-line distance (Haversine) and keeps the closest 3.
+* Renders a list (distance in km), a dropdown, and markers (including a blue marker for the user).
+
+### 4. Extending
+
+If you want to rank by travel time (ETA) instead of straight-line distance, add a backend route that calls the **Distance Matrix API** with a server key (never expose that server key to the browser).
+
+### 5. Privacy Notes
+
+* If the user blocks geolocation, you may provide a manual location input (not implemented yet).
+* Consider adding a consent notice if required by your jurisdiction.
+
