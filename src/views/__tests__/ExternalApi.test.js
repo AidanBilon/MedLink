@@ -38,8 +38,8 @@ describe("The ExternalApi component", () => {
   it("makes a call to the API when the button is clicked", async () => {
     fetch.mockResponseOnce(JSON.stringify({ msg: "This is the API result" }));
 
-    render(<ExternalApiComponent />);
-    fireEvent.click(screen.getByText("Ping API"));
+  render(<ExternalApiComponent />);
+  fireEvent.click(screen.getByText("Send to Calendar"));
 
     await waitFor(() => screen.getByTestId("api-result"));
 
@@ -57,8 +57,7 @@ describe("The ExternalApi component", () => {
 
     render(<ExternalApiComponent />);
 
-    expect(
-      await screen.findByText(/You can't call the API at the moment/)
-    ).toBeInTheDocument();
+  // Without an audience the Send to Calendar button should be disabled
+  expect(screen.getByText("Send to Calendar")).toBeDisabled();
   });
 });

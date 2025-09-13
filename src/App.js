@@ -45,7 +45,7 @@ const App = () => {
               )}
             />
             <Route
-              path="/external-api"
+              path="/calendar"
               render={() => (
         <Container className="mt-5">
                   <ExternalApi />

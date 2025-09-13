@@ -14,21 +14,27 @@ export const ExternalApiComponent = () => {
     error: null,
   });
 
-  const { getAccessTokenSilently, loginWithPopup, getAccessTokenWithPopup } =
-    useAuth0();
+  const [form, setForm] = useState(() => {
+    const now = new Date();
+    const inOneHour = new Date(now.getTime() + 60 * 60 * 1000);
+    return {
+      calendarId: 'primary',
+      summary: 'Telehealth appointment',
+      description: 'Scheduled via MedLink',
+      start: now.toISOString(),
+      end: inOneHour.toISOString(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+    };
+  });
+
+  const { getAccessTokenSilently, loginWithPopup, getAccessTokenWithPopup } = useAuth0();
 
   const handleConsent = async () => {
     try {
       await getAccessTokenWithPopup();
-      setState({
-        ...state,
-        error: null,
-      });
+      setState({ ...state, error: null });
     } catch (error) {
-      setState({
-        ...state,
-        error: error.error,
-      });
+      setState({ ...state, error: error.error });
     }
 
     await callApi();
@@ -37,15 +43,9 @@ export const ExternalApiComponent = () => {
   const handleLoginAgain = async () => {
     try {
       await loginWithPopup();
-      setState({
-        ...state,
-        error: null,
-      });
+      setState({ ...state, error: null });
     } catch (error) {
-      setState({
-        ...state,
-        error: error.error,
-      });
+      setState({ ...state, error: error.error });
     }
 
     await callApi();
@@ -56,23 +56,26 @@ export const ExternalApiComponent = () => {
       const token = await getAccessTokenSilently();
 
       const response = await fetch(`${apiOrigin}/api/external`, {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
+        body: JSON.stringify({
+          calendarId: form.calendarId,
+          summary: form.summary,
+          description: form.description,
+          start: form.start,
+          end: form.end,
+          timezone: form.timezone
+        })
       });
 
       const responseData = await response.json();
 
-      setState({
-        ...state,
-        showResult: true,
-        apiMessage: responseData,
-      });
+      setState({ ...state, showResult: true, apiMessage: responseData });
     } catch (error) {
-      setState({
-        ...state,
-        error: error.error,
-      });
+      setState({ ...state, error: error.error });
     }
   };
 
@@ -81,17 +84,38 @@ export const ExternalApiComponent = () => {
     fn();
   };
 
+  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+
+  // Appointments stored locally for preview; keyed by date string.
+  const [appointments, setAppointments] = useState(() => {
+    const d = new Date(form.start);
+    const key = d.toDateString();
+    return {
+      [key]: [
+        {
+          summary: form.summary,
+          description: form.description,
+          start: form.start,
+          end: form.end,
+        },
+      ],
+    };
+  });
+
+  const [selectedDate, setSelectedDate] = useState(new Date(form.start).toDateString());
+
+  const handleDateClick = (date) => {
+    setSelectedDate(date.toDateString());
+    // Future: load events for this date from Google Calendar
+  };
+
   return (
     <>
       <div className="mb-5">
         {state.error === "consent_required" && (
           <Alert color="warning">
-            You need to{" "}
-            <a
-              href="#/"
-              class="alert-link"
-              onClick={(e) => handle(e, handleConsent)}
-            >
+            You need to{' '}
+            <a href="#/" className="alert-link" onClick={(e) => handle(e, handleConsent)}>
               consent to get access to users api
             </a>
           </Alert>
@@ -99,94 +123,86 @@ export const ExternalApiComponent = () => {
 
         {state.error === "login_required" && (
           <Alert color="warning">
-            You need to{" "}
-            <a
-              href="#/"
-              class="alert-link"
-              onClick={(e) => handle(e, handleLoginAgain)}
-            >
+            You need to{' '}
+            <a href="#/" className="alert-link" onClick={(e) => handle(e, handleLoginAgain)}>
               log in again
             </a>
           </Alert>
         )}
 
         <h1>Calendar & Appointments</h1>
-        <p className="lead">
-          Calendar & Appointments
-        </p>
+        <p className="lead">Calendar & Appointments</p>
 
         <p>
-          This will call a local API on port 3001 that would have been started
-          if you run <code>npm run dev</code>. An access token is sent as part
-          of the request's `Authorization` header and the API will validate it
-          using the API's audience value.
+          Connect your Google Calendar: the fields below are read-only and will
+          be populated by the assistant. When ready, press "Send to Calendar"
+          to add the event to your selected calendar.
         </p>
 
-        {!audience && (
-          <Alert color="warning">
-            <p>
-              You can't call the API at the moment because your application does
-              not have any configuration for <code>audience</code>, or it is
-              using the default value of{" "}
-              <code>&#123;yourApiIdentifier&#125;</code>. You might get this
-              default value if you used the "Download Sample" feature of{" "}
-              <a href="https://auth0.com/docs/quickstart/spa/react">
-                the quickstart guide
-              </a>
-              , but have not set an API up in your Auth0 Tenant. You can find
-              out more information on{" "}
-              <a href="https://auth0.com/docs/api">setting up APIs</a> in the
-              Auth0 Docs.
-            </p>
-            <p>
-              The audience is the identifier of the API that you want to call
-              (see{" "}
-              <a href="https://auth0.com/docs/get-started/dashboard/tenant-settings#api-authorization-settings">
-                API Authorization Settings
-              </a>{" "}
-              for more info).
-            </p>
-
-            <p>
-              In this sample, you can configure the audience in a couple of
-              ways:
-            </p>
-            <ul>
-              <li>
-                in the <code>src/index.js</code> file
-              </li>
-              <li>
-                by specifying it in the <code>auth_config.json</code> file (see
-                the <code>auth_config.json.example</code> file for an example of
-                where it should go)
-              </li>
-            </ul>
-            <p>
-              Once you have configured the value for <code>audience</code>,
-              please restart the app and try to use the "Ping API" button below.
-            </p>
-          </Alert>
-        )}
-
-        <Button
-          color="primary"
-          className="mt-5"
-          onClick={callApi}
-          disabled={!audience}
-        >
-          Ping API
-        </Button>
-      </div>
-
-      <div className="result-block-container">
-        {state.showResult && (
-          <div className="result-block" data-testid="api-result">
-            <h6 className="muted">Result</h6>
-            <Highlight>
-              <span>{JSON.stringify(state.apiMessage, null, 2)}</span>
-            </Highlight>
+        <div className="mt-3 d-md-flex">
+          <div style={{ minWidth: 360, marginRight: 24, padding: 12, borderRadius: 8, boxShadow: '0 2px 6px rgba(0,0,0,0.08)', background: '#fff' }}>
+            <div className="form-group">
+              <label>Calendar ID</label>
+              <input name="calendarId" className="form-control" value={form.calendarId} readOnly style={{ borderRadius:6 }} />
+            </div>
+            <div className="form-group">
+              <label>Summary</label>
+              <input name="summary" className="form-control" value={form.summary} readOnly />
+            </div>
+            <div className="form-group">
+              <label>Description</label>
+              <input name="description" className="form-control" value={form.description} readOnly />
+            </div>
+            <div className="form-group">
+              <label>Start (ISO)</label>
+              <input name="start" className="form-control" value={form.start} readOnly />
+            </div>
+            <div className="form-group">
+              <label>End (ISO)</label>
+              <input name="end" className="form-control" value={form.end} readOnly />
+            </div>
+            <div className="form-group">
+              <label>Timezone</label>
+              <input name="timezone" className="form-control" value={form.timezone} readOnly />
+            </div>
+            <Button color="primary" className="mt-2" onClick={callApi} disabled={!audience}>
+              Send to Calendar
+            </Button>
           </div>
-        )}
+
+          <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+            <div style={{ marginLeft: 8 }}>
+              <SmallCalendar startIso={form.start} onDateClick={handleDateClick} selectedDate={selectedDate} appointmentsByDate={appointments} />
+            </div>
+            <div style={{ marginLeft: 12, minWidth: 260 }}>
+              <div style={{ padding: 12, borderRadius:8, boxShadow:'0 2px 6px rgba(0,0,0,0.06)', background:'#fff' }}>
+                <strong style={{ display: 'block', marginBottom: 8 }}>Appointments</strong>
+                {selectedDate && appointments[selectedDate] ? (
+                  appointments[selectedDate].map((a, idx) => (
+                    <div key={idx} style={{ marginBottom: 8, padding: 8, borderRadius:6, background: '#fbfbfb' }}>
+                      <div style={{ fontWeight: 600 }}>{a.summary}</div>
+                      <div style={{ fontSize: 12, color: '#666' }}>{new Date(a.start).toLocaleString()} - {new Date(a.end).toLocaleTimeString()}</div>
+                      <div style={{ fontSize: 13 }}>{a.description}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ color: '#666' }}>No appointments for this date.</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="result-block-container">
+          {state.showResult && (
+            <div className="result-block" data-testid="api-result">
+              <h6 className="muted">Result</h6>
+              <Highlight>
+                <span>{JSON.stringify(state.apiMessage, null, 2)}</span>
+              </Highlight>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
@@ -195,3 +211,49 @@ export const ExternalApiComponent = () => {
 export default withAuthenticationRequired(ExternalApiComponent, {
   onRedirecting: () => <Loading />,
 });
+
+function SmallCalendar({ startIso, onDateClick, selectedDate }) {
+  const date = new Date(startIso);
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const first = new Date(year, month, 1);
+  const days = [];
+  const startDay = first.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let i = 0; i < startDay; i++) days.push(null);
+  for (let d = 1; d <= daysInMonth; d++) days.push(new Date(year, month, d));
+  return (
+    <div style={{ width: 260 }}>
+      <div style={{ textAlign: 'center', marginBottom: 8 }}>
+        <strong>{date.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</strong>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+        {['S','M','T','W','T','F','S'].map((h, idx) => (
+          <div key={`h-${idx}`} style={{ textAlign: 'center', fontSize: 12, color:'#666' }}>{h}</div>
+        ))}
+        {days.map((d, i) => {
+          const isSelected = d && d.toDateString() === selectedDate;
+          return (
+            <div
+              key={i}
+              onClick={() => d && onDateClick && onDateClick(d)}
+              role={d ? 'button' : undefined}
+              style={{
+                minHeight: 28,
+                textAlign: 'center',
+                lineHeight: '28px',
+                borderRadius:4,
+                background: isSelected ? '#2b6cb0' : 'transparent',
+                color: isSelected ? '#fff' : '#333',
+                cursor: d ? 'pointer' : 'default',
+                userSelect: 'none'
+              }}
+            >
+              {d ? d.getDate() : ''}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
