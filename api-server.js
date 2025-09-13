@@ -154,6 +154,92 @@ app.get("/api/external", checkJwt, (req, res) => {
   });
 });
 
+// --- NewsAPI setup ---
+const NewsAPI = require('newsapi');
+
+// trim to avoid accidental whitespace issues
+const NEWS_API_KEY = (process.env.MEDICAL_NEWS_API_KEY || '').trim();
+if (!NEWS_API_KEY) {
+  console.warn('MEDICAL_NEWS_API_KEY not set. /api/medical-news will return 500 until provided.');
+}
+const newsapi = new NewsAPI(NEWS_API_KEY);
+
+// in-memory cache (per-parameter) for 5 minutes
+const NEWS_CACHE_MS = 5 * 60 * 1000;
+const newsCache = new Map();
+// --- Medical news endpoint with smart fallback ---
+app.get('/api/medical-news', async (req, res) => {
+  try {
+    if (!NEWS_API_KEY) {
+      return res.status(500).json({ error: 'missing_news_key' });
+    }
+
+    const {
+      q,
+      country = 'us',        // default to US (more results)
+      language = 'en',
+      pageSize = 10,
+      category = 'health'    // allow clearing via ?category=
+    } = req.query || {};
+
+    const pageCount = Math.min(Number(pageSize) || 10, 50);
+
+    // cache key depends on effective params
+    const cacheKey = JSON.stringify({ q: q || '', country, language, pageCount, category: category ?? 'none' });
+    const now = Date.now();
+    const cached = newsCache.get(cacheKey);
+    if (cached && (now - cached.ts) < NEWS_CACHE_MS) {
+      return res.json(cached.data);
+    }
+
+    // 1) Try top-headlines first (category optional)
+    const topParams = {
+      language,
+      pageSize: pageCount,
+      q: q || undefined,
+      ...(category ? { category } : {}),
+      ...(country ? { country } : {})
+    };
+
+    let resp = await newsapi.v2.topHeadlines(topParams);
+
+    // 2) If empty and not already US, try US (often more content)
+    if ((resp.totalResults || 0) === 0 && country !== 'us' && !req.query.sources) {
+      resp = await newsapi.v2.topHeadlines({ ...topParams, country: 'us' });
+    }
+
+    // 3) If still empty, fallback to /everything (last 7 days) with broad medical query
+    if ((resp.totalResults || 0) === 0) {
+      const toISO = new Date();
+      const fromISO = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      const fallbackQuery = (q && q.trim())
+        ? q
+        : '(health OR medicine OR hospital OR emergency OR ER OR cardiology OR oncology OR clinical OR physician OR nursing)';
+
+      resp = await newsapi.v2.everything({
+        q: fallbackQuery,
+        language,
+        from: fromISO.toISOString().slice(0, 10),
+        to: toISO.toISOString().slice(0, 10),
+        sortBy: 'publishedAt',
+        pageSize: pageCount,
+      });
+    }
+
+    // only cache non-empty results
+    if ((resp.totalResults || 0) > 0) {
+      newsCache.set(cacheKey, { ts: now, data: resp });
+    }
+
+    return res.json(resp);
+  } catch (err) {
+    console.error('NewsAPI error:', err?.response?.data || err);
+    return res.status(500).json({ error: 'news_fetch_failed' });
+  }
+});
+
+
 app.listen(port, () => console.log(`API Server listening on port ${port}`));
 
 app.get('/api/health', (req,res)=>{
