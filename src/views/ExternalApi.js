@@ -7,7 +7,9 @@ import { getConfig } from "../config";
 import Loading from "../components/Loading";
 
 export const ExternalApiComponent = () => {
-  const { appointments: contextAppointments, setAppointments } = useAppointments();
+  const apptCtx = useAppointments() || {};
+  const contextAppointments = apptCtx.appointments || [];
+  const setAppointments = apptCtx.setAppointments || (()=>{});
   const { apiOrigin = "http://localhost:3001", audience } = getConfig();
 
   const [state, setState] = useState({
