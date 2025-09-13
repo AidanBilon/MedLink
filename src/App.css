@@ -7,6 +7,14 @@ body { margin:0; }
 .logo { background: transparent !important; min-height: 0; min-width: 0; }
 .logo::before, .logo::after { display: none !important; content: none !important; }
 .logo img { display: inline-block; }
+
+/* Left sidebar sections */
+.sidebar-left { display:flex; flex-direction:column; }
+.sidebar-left .sidebar-top { flex: 0 0 auto; }
+.sidebar-left .sidebar-middle { flex: 1 1 auto; overflow:auto; }
+.sidebar-left .sidebar-bottom { flex: 0 0 auto; }
+
+.sidebar-left .sidebar-middle { background: transparent; }
 #app { width:100%; }
 #app .flex-grow-1 { padding-left:0; padding-right:0; }
 .next-steps .fa-link {
