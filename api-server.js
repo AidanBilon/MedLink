@@ -14,6 +14,10 @@ const port = process.env.API_PORT || 3001;
 const appPort = process.env.SERVER_PORT || 3000;
 const appOrigin = authConfig.appOrigin || `http://localhost:${appPort}`;
 
+const cheerio = require("cheerio");
+// Use dynamic import for node-fetch in CommonJS
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 if (
   (!authConfig.domain || !authConfig.audience || authConfig.audience === "{yourApiIdentifier}") &&
   process.env.ALLOW_UNAUTH_TRIAGE !== 'true'
@@ -236,6 +240,59 @@ app.get('/api/medical-news', async (req, res) => {
   } catch (err) {
     console.error('NewsAPI error:', err?.response?.data || err);
     return res.status(500).json({ error: 'news_fetch_failed' });
+  }
+});
+
+// --- FEATURED WHO ARTICLE PREVIEW ---
+const FEATURED_WHO_URL =
+  "https://www.who.int/westernpacific/newsroom/feature-stories/item/10-health-tips-for-2025";
+
+/**
+ * Returns metadata for the WHO story:
+ * { title, description, image, url, published }
+ */
+app.get("/api/featured-health", async (_req, res) => {
+  try {
+    const r = await fetch(FEATURED_WHO_URL, {
+      headers: { "User-Agent": "MedLink/1.0 (+preview)" },
+    });
+    if (!r.ok) throw new Error(`WHO HTTP ${r.status}`);
+    const html = await r.text();
+    const $ = cheerio.load(html);
+
+    // Prefer OpenGraph tags; fall back as needed
+    const og = (p) => $(`meta[property="${p}"]`).attr("content") || "";
+    const title =
+      og("og:title") || $("title").first().text().trim() || "WHO feature story";
+    const description =
+      og("og:description") ||
+      $('meta[name="description"]').attr("content") ||
+      "Feature story from the World Health Organization.";
+    const image = og("og:image") || "";
+    const published =
+      $('meta[property="article:published_time"]').attr("content") ||
+      $("time").first().attr("datetime") ||
+      "2024-12-24";
+
+    res.json({
+      title,
+      description,
+      image,
+      url: FEATURED_WHO_URL,
+      published,
+    });
+  } catch (e) {
+    console.error("featured-health fetch/parse error:", e);
+    // Graceful fallback so your page still renders
+    res.json({
+      title: "10 health tips for 2025",
+      description:
+        "Start the new year with practical health tips from the WHO: eat well, reduce salt and sugar, avoid harmful fats, don’t smoke, stay active, and more.",
+      image: "",
+      url: FEATURED_WHO_URL,
+      published: "2024-12-24",
+      note: "Using fallback copy due to fetch/parse error.",
+    });
   }
 });
 

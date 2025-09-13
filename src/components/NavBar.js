@@ -73,6 +73,16 @@ const NavBar = () => {
                   </NavLink>
                 </NavItem>
               )}
+              <NavItem>
+                <NavLink
+                  tag={RouterNavLink}
+                  to="/health-tips"
+                  exact
+                  activeClassName="router-link-exact-active"
+                >
+                  Health & Wellness Tips
+                </NavLink>
+              </NavItem>
             </Nav>
             <Nav className="d-none d-md-block" navbar>
               {!isAuthenticated && (
