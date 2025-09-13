@@ -70,3 +70,31 @@ body { margin:0; }
 @media (min-width: 992px) {
   .landing-layout .sidebar { position: sticky; top: 70px; }
 }
+
+/* Unauthenticated Hero hint pointing to login */
+.unauth-hero .login-hint {
+  margin-top: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  color: #333;
+}
+.unauth-hero .curly-arrow {
+  font-size: 3rem;
+  line-height: 1;
+  margin-right: 0.5rem;
+  transform: rotate(-20deg);
+  display: inline-block;
+  color: #2b6cb0;
+}
+.unauth-hero .hint-text { font-size: 1.1rem; }
+
+/* Position the arrow so it visually points to top-left where login button lives in navbar */
+@media (min-width: 768px) {
+  .unauth-hero .login-hint { transform: translateX(-30%); }
+}
+
+/* Unauthenticated landing minimal styling */
+.unauth-landing { max-width: 720px; margin-left: auto; margin-right: auto; }
+.unauth-landing h2 { font-weight: 700; }
+.unauth-landing p.lead { color: #444; }
