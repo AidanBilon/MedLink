@@ -110,9 +110,9 @@ export const ExternalApiComponent = () => {
           </Alert>
         )}
 
-        <h1>External API</h1>
+        <h1>Calendar & Appointments</h1>
         <p className="lead">
-          Ping an external API by clicking the button below.
+          Calendar & Appointments
         </p>
 
         <p>

@@ -69,7 +69,7 @@ const NavBar = () => {
                     exact
                     activeClassName="router-link-exact-active"
                   >
-                    External API
+                    Calendar & Appointments
                   </NavLink>
                 </NavItem>
               )}
