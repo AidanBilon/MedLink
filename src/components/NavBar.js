@@ -19,6 +19,7 @@ import {
 } from "reactstrap";
 
 import { useAuth0 } from "@auth0/auth0-react";
+import medlinkLogo from "../assets/medlink_logo_black.png";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +42,9 @@ const NavBar = () => {
     <div className="nav-container">
       <Navbar color="light" light expand="md" container={false}>
     <Container className="w-100">
-          <NavbarBrand className="logo" />
+          <NavbarBrand className="logo">
+            <img src={medlinkLogo} alt="MedLink" height="36" />
+          </NavbarBrand>
           <NavbarToggler onClick={toggle} />
           <Collapse isOpen={isOpen} navbar>
             <Nav className="mr-auto" navbar>

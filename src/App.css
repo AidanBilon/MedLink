@@ -2,6 +2,11 @@
 body { margin:0; }
 .nav-container { width:100%; }
 .landing-layout.mt-4 { margin-top:0 !important; }
+
+/* Ensure .logo containers don't show background or duplicate content */
+.logo { background: transparent !important; min-height: 0; min-width: 0; }
+.logo::before, .logo::after { display: none !important; content: none !important; }
+.logo img { display: inline-block; }
 #app { width:100%; }
 #app .flex-grow-1 { padding-left:0; padding-right:0; }
 .next-steps .fa-link {
