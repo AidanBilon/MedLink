@@ -1,5 +1,5 @@
 // Simple localStorage-backed profile store keyed by Auth0 user sub
-// Shape: { firstName, lastName, phone, email, updatedAt }
+// Shape: { firstName, lastName, phone, email, profilePicture, updatedAt }
 
 const KEY_PREFIX = 'profile:';
 

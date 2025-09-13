@@ -1,20 +1,22 @@
 import React from "react";
 import { Container, Row, Col } from "reactstrap";
 
-import Highlight from "../components/Highlight";
 import AccountForm from "../components/AccountForm";
 import Loading from "../components/Loading";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+import { loadProfile } from "../utils/profileStore";
 
 export const ProfileComponent = () => {
   const { user } = useAuth0();
+  const saved = user?.sub ? loadProfile(user.sub) : null;
+  const pictureSrc = saved?.profilePicture || user?.picture;
 
   return (
     <Container className="mb-5">
       <Row className="align-items-center profile-header mb-5 text-center text-md-left">
         <Col md={2}>
           <img
-            src={user.picture}
+            src={pictureSrc}
             alt="Profile"
             className="rounded-circle img-fluid profile-picture mb-3 mb-md-0"
           />
@@ -27,11 +29,6 @@ export const ProfileComponent = () => {
       <Row className="mb-5">
         <Col>
           <AccountForm />
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <Highlight>{JSON.stringify(user, null, 2)}</Highlight>
         </Col>
       </Row>
     </Container>

@@ -20,6 +20,7 @@ import {
 
 import { useAuth0 } from "@auth0/auth0-react";
 import medlinkLogo from "../assets/medlink_logo_black.png";
+import { loadProfile } from "../utils/profileStore";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,6 +30,8 @@ const NavBar = () => {
     loginWithRedirect,
     logout,
   } = useAuth0();
+  const savedProfile = user?.sub ? loadProfile(user.sub) : null;
+  const avatarSrc = savedProfile?.profilePicture || user?.picture;
   const toggle = () => setIsOpen(!isOpen);
 
   const logoutWithRedirect = () =>
@@ -88,7 +91,7 @@ const NavBar = () => {
                 <UncontrolledDropdown nav inNavbar>
                   <DropdownToggle nav caret id="profileDropDown">
                     <img
-                      src={user.picture}
+                      src={avatarSrc}
                       alt="Profile"
                       className="nav-user-profile rounded-circle"
                       width="50"
@@ -138,7 +141,7 @@ const NavBar = () => {
                 <NavItem>
                   <span className="user-info">
                     <img
-                      src={user.picture}
+                      src={avatarSrc}
                       alt="Profile"
                       className="nav-user-profile d-inline-block rounded-circle mr-3"
                       width="50"

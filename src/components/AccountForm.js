@@ -3,7 +3,7 @@ import { Form, FormGroup, Label, Input, Button, Row, Col, Alert } from 'reactstr
 import { loadProfile, saveProfile } from '../utils/profileStore';
 import { useAuth0 } from '@auth0/auth0-react';
 
-const defaultState = { firstName: '', lastName: '', phone: '', email: '' };
+const defaultState = { firstName: '', lastName: '', phone: '', email: '', profilePicture: '' };
 
 const AccountForm = () => {
   const { user } = useAuth0();
@@ -38,6 +38,16 @@ const AccountForm = () => {
   const onChange = (e) => {
     const { name, value } = e.target;
     setValues(v => ({ ...v, [name]: value }));
+  };
+
+  const onFileChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setValues(v => ({ ...v, profilePicture: reader.result }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const onSubmit = useCallback((e) => {
@@ -83,6 +93,19 @@ const AccountForm = () => {
             <FormGroup>
         <Label for="email">Email</Label>
         <Input id="email" name="email" type="email" value={values.email} onChange={onChange} disabled={!!user?.email} />
+            </FormGroup>
+          </Col>
+        </Row>
+        <Row className="mt-3">
+          <Col md={12}>
+            <FormGroup>
+              <Label for="profilePicture">Profile Picture</Label>
+              <Input id="profilePicture" name="profilePicture" type="file" accept="image/*" onChange={onFileChange} />
+              {values.profilePicture && (
+                <div className="mt-2">
+                  <img src={values.profilePicture} alt="Preview" style={{ maxWidth: '120px', borderRadius: '6px' }} />
+                </div>
+              )}
             </FormGroup>
           </Col>
         </Row>
