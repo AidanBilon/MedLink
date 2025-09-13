@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAppointments } from "../utils/AppointmentsContext";
 import { Button, Alert } from "reactstrap";
 import Highlight from "../components/Highlight";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
@@ -6,6 +7,7 @@ import { getConfig } from "../config";
 import Loading from "../components/Loading";
 
 export const ExternalApiComponent = () => {
+  const { setAppointments } = useAppointments();
   const { apiOrigin = "http://localhost:3001", audience } = getConfig();
 
   const [state, setState] = useState({
@@ -87,7 +89,7 @@ export const ExternalApiComponent = () => {
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
   // Appointments stored locally for preview; keyed by date string.
-  const [appointments, setAppointments] = useState(() => {
+  const [appointments, setLocalAppointments] = useState(() => {
     const d = new Date(form.start);
     const key = d.toDateString();
     return {
@@ -101,6 +103,13 @@ export const ExternalApiComponent = () => {
       ],
     };
   });
+
+  // Sync local appointments to context
+  useEffect(() => {
+    // Flatten all appointments into a single array for context
+    const all = Object.values(appointments).flat();
+    setAppointments(all);
+  }, [appointments, setAppointments]);
 
   const [selectedDate, setSelectedDate] = useState(new Date(form.start).toDateString());
 
