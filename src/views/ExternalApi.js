@@ -7,9 +7,7 @@ import { getConfig } from "../config";
 import Loading from "../components/Loading";
 
 export const ExternalApiComponent = () => {
-  // Defensive: context may be undefined in isolated tests if provider not mounted
-  const ctx = useAppointments();
-  const setAppointments = ctx && ctx.setAppointments ? ctx.setAppointments : () => {};
+  const { appointments: contextAppointments, setAppointments } = useAppointments();
   const { apiOrigin = "http://localhost:3001", audience } = getConfig();
 
   const [state, setState] = useState({
@@ -23,8 +21,8 @@ export const ExternalApiComponent = () => {
     const inOneHour = new Date(now.getTime() + 60 * 60 * 1000);
     return {
       calendarId: 'primary',
-      summary: 'Telehealth appointment',
-      description: 'Scheduled via MedLink',
+      summary: '',
+      description: '',
       start: now.toISOString(),
       end: inOneHour.toISOString(),
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
@@ -90,28 +88,34 @@ export const ExternalApiComponent = () => {
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
-  // Appointments stored locally for preview; keyed by date string.
-  const [appointments, setLocalAppointments] = useState(() => {
-    const d = new Date(form.start);
-    const key = d.toDateString();
-    return {
-      [key]: [
-        {
-          summary: form.summary,
-          description: form.description,
-          start: form.start,
-          end: form.end,
-        },
-      ],
-    };
-  });
+  // Local appointments mapping keyed by date string. Start empty; we'll
+  // derive from context if available to avoid overwriting seed data.
+  const [appointments, setLocalAppointments] = useState({});
 
-  // Sync local appointments to context
+  // Sync local appointments to context, but do not overwrite existing context
+  // appointments (for example the demo day's seeded appointments).
   useEffect(() => {
-    // Flatten all appointments into a single array for context
-    const all = Object.values(appointments).flat();
-    setAppointments(all);
-  }, [appointments, setAppointments]);
+    const localAll = Object.values(appointments).flat();
+    if (!contextAppointments || contextAppointments.length === 0) {
+      // If context empty, publish local appointments
+      setAppointments(localAll);
+    } else {
+      // If context already has data, reflect it into local mapping for the calendar UI
+      const byDate = {};
+      contextAppointments.forEach(a => {
+        const key = new Date(a.start).toDateString();
+        if (!byDate[key]) byDate[key] = [];
+        byDate[key].push(a);
+      });
+      // Only update local if changed to avoid loops
+      const keysA = Object.keys(byDate).sort();
+      const keysB = Object.keys(appointments).sort();
+      if (JSON.stringify(keysA) !== JSON.stringify(keysB)) {
+        setLocalAppointments(byDate);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appointments, contextAppointments]);
 
   const [selectedDate, setSelectedDate] = useState(new Date(form.start).toDateString());
 

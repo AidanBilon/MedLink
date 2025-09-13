@@ -3,6 +3,8 @@ import logo from '../assets/logo.svg';
 import medlinkLogo from '../assets/medlink_logo_black.png';
 import { useAuth0 } from '@auth0/auth0-react';
 import { getConfig } from '../config';
+import { useAppointments } from '../utils/AppointmentsContext';
+import history from '../utils/history';
 
 const severityColors = {
   Minimal: '#2f855a',
@@ -22,6 +24,65 @@ export default function ChatTriage() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const listRef = useRef(null);
+  const { appointments, setAppointments } = useAppointments();
+  const [pendingSchedule, setPendingSchedule] = useState(null); // holds severity + summary until user clicks
+
+  const severityOrder = ['Minimal','Mild','Moderate','Concerning','Critical'];
+
+  function computeScheduledSlot(severity) {
+    // If no existing appointments just schedule now + 5 mins
+    const now = new Date();
+    const baseStart = new Date(now.getTime() + 5 * 60 * 1000);
+    // Sort existing appointments by start time
+    const existing = [...appointments].sort((a,b)=> new Date(a.start)-new Date(b.start));
+    // If critical -> put at front (start at baseStart) and push others by slot (20m)
+    const slotMs = 20 * 60 * 1000;
+    if (severity === 'Critical') {
+      const start = baseStart;
+      const end = new Date(start.getTime() + slotMs);
+      // shift others sequentially if they overlap or start before new end
+      let cursor = end.getTime();
+      const shifted = existing.map(appt => {
+        const s = new Date(cursor);
+        const e = new Date(cursor + (new Date(appt.end)- new Date(appt.start)));
+        cursor = e.getTime();
+        return { ...appt, start: s.toISOString(), end: e.toISOString() };
+      });
+      return { updated: shifted, inserted: { summary: `Emergency visit (Critical)`, description: `Auto-scheduled due to critical severity`, start: start.toISOString(), end: end.toISOString(), severity } };
+    }
+    // For non-critical: find earliest gap or append after last.
+    // Keep order; if severity higher than average, try to move earlier.
+    let lastEnd = baseStart;
+    for (let i=0;i<existing.length;i++) {
+      const apptStart = new Date(existing[i].start);
+      if (apptStart - lastEnd >= slotMs) {
+        // gap found
+        const start = lastEnd;
+        const end = new Date(start.getTime() + slotMs);
+        return { updated: existing, inserted: { summary: `ER visit (${severity})`, description: `Scheduled based on triage severity`, start: start.toISOString(), end: end.toISOString(), severity } };
+      }
+      lastEnd = new Date(Math.max(lastEnd.getTime(), new Date(existing[i].end).getTime()));
+    }
+    const start = lastEnd;
+    const end = new Date(start.getTime() + slotMs);
+    return { updated: existing, inserted: { summary: `ER visit (${severity})`, description: `Scheduled based on triage severity`, start: start.toISOString(), end: end.toISOString(), severity } };
+  }
+
+  function schedulePending() {
+    if (!pendingSchedule) return;
+    const { severity } = pendingSchedule;
+    const result = computeScheduledSlot(severity);
+    let newList;
+    if (severity === 'Critical') {
+      newList = [result.inserted, ...result.updated];
+    } else {
+      newList = [...result.updated, result.inserted];
+    }
+    setAppointments(newList);
+    setPendingSchedule(null);
+    // navigate to calendar page
+    history.push('/calendar');
+  }
 
   const send = async () => {
     if (!input.trim() || !isAuthenticated) return;
@@ -57,9 +118,10 @@ export default function ChatTriage() {
       } else if (data.error) {
         setMessages(m => [...m, { role: 'assistant', content: `Server error: ${data.error}` }]);
       } else {
-        const color = severityColors[data.severity] || '#444';
-        const formatted = `Severity: ${data.severity}\nSymptoms: ${data.symptomsSummary}\nAdvice: ${data.advice}\nEstimated ER wait window: ${data.estimatedERWait}\n\n${data.disclaimer}\n(Seek care promptly; do not delay going to the ER.)`;
-        setMessages(m => [...m, { role: 'assistant', content: formatted, severity: data.severity, color }]);
+  const color = severityColors[data.severity] || '#444';
+  const formatted = `Severity: ${data.severity}\nSymptoms: ${data.symptomsSummary}\nAdvice: ${data.advice}\nEstimated ER wait window: ${data.estimatedERWait}\n\n${data.disclaimer}\n(Seek care promptly; do not delay going to the ER.)`;
+  setPendingSchedule({ severity: data.severity });
+  setMessages(m => [...m, { role: 'assistant', content: formatted, severity: data.severity, color, canSchedule: true }]);
       }
     } catch (e) {
       setMessages(m => [...m, { role: 'assistant', content: `Network or authorization error: ${e.message}` }]);
@@ -96,6 +158,14 @@ export default function ChatTriage() {
                   <span style={{ ...styles.severityBadge, background: severityColors[m.severity] || '#444' }}>{m.severity}</span>
                 )}
                 <pre style={styles.pre}>{m.content}</pre>
+                {m.canSchedule && pendingSchedule && (
+                  <div style={{ marginTop: 8 }}>
+                    <button
+                      onClick={schedulePending}
+                      style={{ background:'#2563eb', color:'#fff', border:'none', padding:'6px 12px', borderRadius:6, cursor:'pointer', fontSize:13, fontWeight:600 }}
+                    >Schedule Appointment</button>
+                  </div>
+                )}
               </div>
               {!isAssistant && (
                 <img
