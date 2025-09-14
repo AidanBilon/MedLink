@@ -257,13 +257,13 @@ function SmallCalendar({ startIso, onDateClick, selectedDate }) {
   for (let i = 0; i < startDay; i++) days.push(null);
   for (let d = 1; d <= daysInMonth; d++) days.push(new Date(year, month, d));
   return (
-    <div style={{ width: 260 }}>
-      <div style={{ textAlign: 'center', marginBottom: 8 }}>
-        <strong>{date.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</strong>
+    <div style={{ width: 520 }}>
+      <div style={{ textAlign: 'center', marginBottom: 12 }}>
+        <strong style={{ fontSize: '1.25rem' }}>{date.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</strong>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
         {['S','M','T','W','T','F','S'].map((h, idx) => (
-          <div key={`h-${idx}`} style={{ textAlign: 'center', fontSize: 12, color:'#666' }}>{h}</div>
+          <div key={`h-${idx}`} style={{ textAlign: 'center', fontSize: 14, color:'#666', paddingBottom: 6 }}>{h}</div>
         ))}
         {days.map((d, i) => {
           const isSelected = d && d.toDateString() === selectedDate;
@@ -273,10 +273,10 @@ function SmallCalendar({ startIso, onDateClick, selectedDate }) {
               onClick={() => d && onDateClick && onDateClick(d)}
               role={d ? 'button' : undefined}
               style={{
-                minHeight: 28,
+                minHeight: 56,
                 textAlign: 'center',
-                lineHeight: '28px',
-                borderRadius:4,
+                lineHeight: '56px',
+                borderRadius:8,
                 background: isSelected ? '#2b6cb0' : 'transparent',
                 color: isSelected ? '#fff' : '#333',
                 cursor: d ? 'pointer' : 'default',
