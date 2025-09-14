@@ -90,15 +90,3 @@ public/                 # Static files and index.html
 
 - **Background Image** → Replace `MedLink_Background.png` in `src/assets/`  
 - **Logos** → Update `logo.svg`, `who-logo.png`, or `gov-can-logo.png` in `src/assets/`  
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to improve.
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
