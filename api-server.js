@@ -296,6 +296,58 @@ app.get("/api/featured-health", async (_req, res) => {
   }
 });
 
+// --- FEATURED WHO ARTICLE PREVIEW ---
+const FEATURED_FOOD_CANADA_URL =
+  "https://food-guide.canada.ca/en/?utm_source=canada-ca-foodguide-en&utm_medium=vurl&utm_campaign=foodguide-2021";
+
+/**
+ * Returns metadata for the FOOD_CANADA story:
+ * { title, description, image, url, published }
+ */
+app.get("/api/featured-food", async (_req, res) => {
+  try {
+    const r = await fetch(FEATURED_FOOD_CANADA_URL, {
+      headers: { "User-Agent": "MedLink/1.0 (+preview)" },
+    });
+    if (!r.ok) throw new Error(`FOOD_CANADA HTTP ${r.status}`);
+    const html = await r.text();
+    const $ = cheerio.load(html);
+
+    // Prefer OpenGraph tags; fall back as needed
+    const og = (p) => $(`meta[property="${p}"]`).attr("content") || "";
+    const title =
+      og("og:title") || $("title").first().text().trim() || "FOOD_CANADA feature story";
+    const description =
+      og("og:description") ||
+      $('meta[name="description"]').attr("content") ||
+      "Feature story from Health Canada.";
+    const image = og("og:image") || "";
+    const published =
+      $('meta[property="article:published_time"]').attr("content") ||
+      $("time").first().attr("datetime") ||
+      "2025-09-13";
+
+    res.json({
+      title,
+      description,
+      image,
+      url: FEATURED_FOOD_CANADA_URL,
+      published,
+    });
+  } catch (e) {
+    console.error("featured-food fetch/parse error:", e);
+    // Graceful fallback so your page still renders
+    res.json({
+      title: "Canada Food Guide",
+      description:
+        "Eat a variety of healthy foods each day.",
+      image: "",
+      url: FEATURED_FOOD_CANADA_URL,
+      published: "2025-09-13",
+      note: "Using fallback copy due to fetch/parse error.",
+    });
+  }
+});
 
 app.listen(port, () => console.log(`API Server listening on port ${port}`));
 
