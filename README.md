@@ -1,30 +1,40 @@
-# MedLink
+# 🌐 MedLink
 
-MedLink is a modern web application designed to connect users with health and wellness resources, provide up-to-date medical news, and offer a seamless experience for managing appointments and accessing health tips.
+MedLink is a modern web application that connects users with **health and wellness resources**, provides **up-to-date medical news**, and offers a seamless experience for **managing appointments** and accessing personalized **health tips**.
 
-## Features
+---
 
-- **Health & Wellness Tips:**
-  - Displays featured articles from the World Health Organization (WHO) and Canada’s Food Guide.
-  - Consistent card-based UI with article previews, images, and source logos.
-- **Medical News:**
-  - Fetches and displays the latest medical news from trusted sources.
-- **Appointments Management:**
-  - Sidebar displays upcoming appointments.
-  - Appointments persist and load automatically on first page load.
-- **Authentication:**
-  - Secure login with branded MedLink logo and custom background.
-- **Custom UI:**
-  - Main content areas feature a branded background image.
-  - Responsive design with header, footer, and side panels unaffected by background.
+## ✨ Features
 
-## Tech Stack
+- **💡 Health & Wellness Tips**
+  - Curated articles from the **World Health Organization (WHO)** and **Canada’s Food Guide**.
+  - Clean, card-based UI with article previews, images, and trusted source logos.
 
-- **Frontend:** React, Reactstrap, Context API, Custom CSS
-- **Backend:** Node.js, Express, Cheerio, node-fetch
-- **Assets:** SVG/PNG images for branding and article sources
+- **📰 Medical News**
+  - Fetches and displays the **latest medical updates** from reliable outlets.
 
-## Project Structure
+- **📅 Appointment Management**
+  - Sidebar shows upcoming appointments.
+  - Appointments are persistent and reload automatically on startup.
+
+- **🔐 Authentication**
+  - Secure login with a branded MedLink logo and custom background.
+
+- **🎨 Custom UI**
+  - Branded background images for main content areas.
+  - Fully responsive layout with header, footer, and side panels unaffected by background visuals.
+
+---
+
+## 🛠 Tech Stack
+
+- **Frontend:** React, Reactstrap, Context API, Custom CSS  
+- **Backend:** Node.js, Express, Cheerio, node-fetch  
+- **Assets:** SVG/PNG images for branding and article sources  
+
+---
+
+## 📂 Project Structure
 
 ```
 api-server.js           # Express backend for API endpoints
@@ -38,46 +48,57 @@ src/
 public/                 # Static files and index.html
 ```
 
-## Setup & Running Locally
+---
 
-1. **Clone the repository:**
+## 🚀 Getting Started
+
+1. **Clone the repository**
    ```sh
    git clone <repo-url>
    cd MedLink
    ```
-2. **Install dependencies:**
+
+2. **Install dependencies**
    ```sh
    npm install
    ```
-3. **Start the backend server:**
+
+3. **Run the backend server**
    ```sh
    node api-server.js
    ```
-4. **Start the frontend (in a new terminal):**
+
+4. **Start the frontend (new terminal)**
    ```sh
    npm start
    ```
-5. **Access the app:**
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## API Endpoints
+5. **Open the app**
+   - Visit [http://localhost:3000](http://localhost:3000) in your browser 🎉
 
-- `/api/featured-health` — Returns featured WHO article (JSON)
-- `/api/featured-food` — Returns featured Canada Food Guide article (JSON)
-- Additional endpoints for news and appointments as needed
+---
 
-## Customization
+## 📡 API Endpoints
 
-- **Background Image:** Replace `MedLink_Background.png` in `src/assets/` for a different look.
-- **Logos:** Update `logo.svg`, `who-logo.png`, or `gov-can-logo.png` in `src/assets/` as needed.
+- `/api/featured-health` → Featured WHO article (JSON)  
+- `/api/featured-food` → Featured Canada Food Guide article (JSON)  
+- Additional endpoints for medical news & appointments  
 
-## Contributing
+---
 
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+## 🎛 Customization
 
-## License
+- **Background Image** → Replace `MedLink_Background.png` in `src/assets/`  
+- **Logos** → Update `logo.svg`, `who-logo.png`, or `gov-can-logo.png` in `src/assets/`  
 
-[MIT](LICENSE)
-Auth0 helps you to:
+---
 
+## 🤝 Contributing
 
+Pull requests are welcome! For major changes, please open an issue first to discuss what you’d like to improve.
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
