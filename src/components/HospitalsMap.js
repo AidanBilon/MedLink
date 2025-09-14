@@ -269,17 +269,18 @@ export default function HospitalsMap() {
         <div className="hospital-list mb-2">
           <ul className="list-unstyled mb-2">
             {places.map(p => (
-              <li key={p.id} className="small">
-                <strong>{p.name}</strong><br />
-                {(p.distanceMeters/1000).toFixed(2)} km
+              <li key={p.id} className="mb-2">
+                <div style={{ fontSize: '0.75rem', fontWeight: 700 }}>{p.name}</div>
+                <div style={{ fontSize: '0.65rem', color: '#444' }}>{(p.distanceMeters/1000).toFixed(2)} km</div>
               </li>
             ))}
           </ul>
-          <select className="form-control form-control-sm" value={selectedId} onChange={handleSelect}>
-            {places.map(p => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
+            <div className="mb-1 pt-4" style={{ fontWeight: 700, fontSize: '0.95rem', color: '#01569d' }}>What hospital would you like to go to?</div>
+            <select className="form-control form-control-sm" value={selectedId} onChange={handleSelect}>
+              {places.map(p => (
+                <option key={p.id} value={p.id} style={{ fontSize: '1rem' }}>{p.name}</option>
+              ))}
+            </select>
         </div>
       )}
       <div className="hospital-map-wrapper">
