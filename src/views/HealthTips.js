@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Container } from "reactstrap";
-import MedLinkBackground from "../assets/MedLink_Background.png"; // adjust path if needed
+import MedLinkBackground from "../assets/MedLink_Background.png";
 import WhoLogo from "../assets/who-logo.png";
 import GovCanLogo from "../assets/gov-can-logo.png";
+import Infograph from "../assets/infograph.png";
 
 export default function HealthTips() {
   const [featured, setFeatured] = useState(null);
@@ -29,11 +30,11 @@ export default function HealthTips() {
   const BackgroundWrapper = ({ children }) => (
     <div
       style={{
-  backgroundImage: `url(${MedLinkBackground})`,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-  backgroundRepeat: "no-repeat",
-  backgroundColor: '#ffffff',
+        backgroundImage: `url(${MedLinkBackground})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundColor: "#ffffff",
         minHeight: "100vh",
         paddingTop: "2rem",
         paddingBottom: "2rem",
@@ -42,7 +43,7 @@ export default function HealthTips() {
         marginRight: "calc(50% - 50vw)",
       }}
     >
-  <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16, background: 'transparent', borderRadius: 12 }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: 16, background: "transparent", borderRadius: 12 }}>
         {children}
       </div>
     </div>
@@ -271,6 +272,29 @@ export default function HealthTips() {
             </p>
           </ArticleCard>
         </a>
+
+        {/* Infographic under the two articles */}
+        <div
+          style={{
+            border: "1px solid #e5e7eb",
+            background: "#ffffff",
+            borderRadius: 16,
+            padding: 16,
+            marginTop: 16,
+            boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+          }}
+        >
+          <img
+            src={Infograph}
+            alt="Health infographic"
+            style={{
+              width: "100%",
+              height: "auto",
+              display: "block",
+              borderRadius: 12,
+            }}
+          />
+        </div>
 
         <div style={{ height: 48 }} />
       </Container>
