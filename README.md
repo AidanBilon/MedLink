@@ -1,92 +1,89 @@
-# 🌐 MedLink
+  # MedLink
 
-MedLink is a modern web application that connects users with **health and wellness resources**, provides **up-to-date medical news**, and offers a seamless experience for **managing appointments** and accessing personalized **health tips**.
+  MedLink is a patient-first web app designed to reduce long emergency-room wait times and help people access timely care in Canada where many patients lack a family doctor. It pairs an AI-powered triage assistant with location-aware hospital lookup and a lightweight appointment scheduler that prioritizes patients based on severity and wait time.
 
----
+  <img src="readme_images/whole.jpg" height="300px">
 
-## ✨ Features
+  ---
 
-- **💡 Health & Wellness Tips**
-  - Curated articles from the **World Health Organization (WHO)** and **Canada’s Food Guide**.
-  - Clean, card-based UI with article previews, images, and trusted source logos.
+  ## Why this matters (context)
+  Canada faces a shortage of family physicians in many regions and long waits for emergency care with an 8 hour average wait time being the regular. MedLink is designed to:
+  - Reduce unnecessary ED visits by providing triage guidance and alternatives when safe to do so.
+  - Prioritize serious cases for faster appointments via the weighted scheduler.
+  - Help patients make informed decisions using location-aware data, news, and drug references.
 
-- **📰 Medical News**
-  - Fetches and displays the **latest medical updates** from reliable outlets.
+  ---
 
-- **📅 Appointment Management**
-  - Sidebar shows upcoming appointments.
-  - Appointments are persistent and reload automatically on startup.
+  ## Quick elevator
 
-- **🔐 Authentication**
-  - Secure login with a branded MedLink logo and custom background.
+  MedLink helps users assess symptoms, find the nearest emergency rooms, consume trustworthy medical news and health guidance, and schedule prioritized appointments through an AI-guided flow reducing unnecessary ED visits and helping patients get care faster.
 
-- **🎨 Custom UI**
-  - Branded background images for main content areas.
-  - Fully responsive layout with header, footer, and side panels unaffected by background visuals.
+  ## Key features
 
----
+  - AI Triage Assistant
+    - A conversational assistant that collects symptoms, suggests probable causes, gives practical do/don't advice, and when appropriate offers to schedule an appointment on the user's behalf.
+    - The assistant reasons about urgency and returns a severity level that the scheduler uses to prioritize bookings.
+  <img src="readme_images/assistant.png" height="200px">
 
-## 🛠 Tech Stack
+  - Severity-weighted Appointment Scheduling
+    - Appointments are queued using a weighted algorithm that balances:
+      - Severity level (Critical, High, Medium, Low)
+      - Time already waited
+    - Severity levels (examples):
+      - <span style="color:#c53030;font-weight:bold;">Critical</span>: needs immediate attention (push to front)
+      - <span style="color:#dd6b20;font-weight:bold;">Concerning</span>: urgent but not immediately life-threatening
+      - <span style="color:#3182ce;font-weight:bold;">Mild</span> and <span style="color:#d69e2e;font-weight:bold;">Moderate</span>: requires timely care within hours/days
+      - <span style="color:#2f855a;font-weight:bold;">Minimal</span>: routine, non-urgent
+    - The scheduler can shift and reorder future appointments to reflect newly inserted higher-severity bookings.
+  <img src="readme_images/appointment.png" height="200px">
 
-- **Frontend:** React, Reactstrap, Context API, Custom CSS  
-- **Backend:** Node.js, Express, Cheerio, node-fetch  
-- **Assets:** SVG/PNG images for branding and article sources  
+  - Location Services & Nearby Emergency Rooms
+    - Uses geolocation (with explicit user permission) to find and rank nearby emergency departments and hospitals.
+    - Displays distance, estimated travel time, and hospital details so patients can choose an appropriate location.  
+  <img src="readme_images/location.png" width="200px">
 
----
+  - Up-to-date Medical News & Evidence
+    - Aggregates trusted sources for medical news and health guidance (WHO, public health agencies, selected outlets).
+    - Provides curated health and wellness content and links to primary sources.  
+  <img src="readme_images/news.png" width="200px">
 
-## 📂 Project Structure
+  - FDA Drug Lookup (reference)
+    - Lookup for drug information and safety notices (sourced from public APIs where available).
+    - Useful for patients checking interactions, warnings, or recall notices.
 
-```
-api-server.js           # Express backend for API endpoints
-server.js               # Main server entry point
-src/
-  App.js                # Main React app and routing
-  components/           # Reusable UI components (NavBar, Footer, etc.)
-  views/                # Main pages (Home, HealthTips, Profile, etc.)
-  assets/               # Images and logos
-  utils/                # Utility functions and context
-public/                 # Static files and index.html
-```
 
----
+  - Persistent Appointments & Local Storage
+    - Appointments are stored locally and persist across sessions.
+    - The app avoids seeding demo appointments in production; only user-scheduled items are persisted.
 
-## 🚀 Getting Started
+  ## Technology stack
+  - Frontend: React, Context API, React Router, Reactstrap/Bootstrap, custom CSS
+  - Backend: Node.js + Express (lightweight API endpoints used for news, triage simulation, calendar integration, authentification services, and LLM automation)
+  - Testing: Jest + React Testing Library
 
-1. **Clone the repository**
-   ```sh
-   git clone <repo-url>
-   cd MedLink
-   ```
+  ## Running locally
+  1. Clone the repo
+  ```bash
+  git clone <repo-url>
+  cd MedLink
+  ```
+  2. Install dependencies
+  ```bash
+  npm install
+  ```
+  3. Start the backend API (if using local endpoints)
+  ```bash
+  node api-server.js
+  ```
+  4. Start the frontend
+  ```bash
+  npm start
+  ```
+  5. Open the app in your browser at http://localhost:3000
 
-2. **Install dependencies**
-   ```sh
-   npm install
-   ```
+  ## Privacy & permissions
+  - Location services are required and used only with explicit user consent and to find nearby EDs/hospitals.
+  - The app stores appointments locally for sercurity purposes.
 
-3. **Run the backend server**
-   ```sh
-   node api-server.js
-   ```
-
-4. **Start the frontend (new terminal)**
-   ```sh
-   npm start
-   ```
-
-5. **Open the app**
-   - Visit [http://localhost:3000](http://localhost:3000) in your browser 🎉
-
----
-
-## 📡 API Endpoints
-
-- `/api/featured-health` → Featured WHO article (JSON)  
-- `/api/featured-food` → Featured Canada Food Guide article (JSON)  
-- Additional endpoints for medical news & appointments  
-
----
-
-## 🎛 Customization
-
-- **Background Image** → Replace `MedLink_Background.png` in `src/assets/`  
-- **Logos** → Update `logo.svg`, `who-logo.png`, or `gov-can-logo.png` in `src/assets/`  
+  ## License & credits
+  MIT License — credit to the project authors and contributors.
