@@ -6,7 +6,7 @@ const AUTH_ICON = 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/a
 const CHAT_ICON = 'https://www.gstatic.com/images/branding/product/1x/assistant_48dp.png';
 
 const Footer = () => (
-  <footer className="bg-light text-center app-footer">
+  <footer className="text-center app-footer" style={{ background: '#ffffff' }}>
     <div className="logo mb-2">
       <img src={medlinkLogo} alt="MedLink" height="28" />
     </div>

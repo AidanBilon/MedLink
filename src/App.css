@@ -1,7 +1,7 @@
 #app, body, html { width:100%; }
 body { margin:0; }
 /* Make page background match footer's light background so area below footer doesn't appear white */
-body, #root, #app { background: #f8fafc; }
+.body-bg-white, body, #root, #app { background: #ffffff; }
 .nav-container { width:100%; }
 .landing-layout.mt-4 { margin-top:0 !important; }
 
@@ -170,7 +170,7 @@ body, #root, #app { background: #f8fafc; }
 /* Full-width landing disclaimer that sits below the layout */
 /* Footer styles */
 .footer-icon { height: 16px; width: 16px; vertical-align: -2px; margin-right: 6px; }
-.app-footer { padding-bottom: 6rem; background: #f8fafc; }
+.app-footer { padding-bottom: 6rem; background: #ffffff; }
 /* Make footer lines tighter vertically */
 .app-footer p { margin-top: 0.15rem; margin-bottom: 0.15rem; }
 

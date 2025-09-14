@@ -29,10 +29,11 @@ export default function HealthTips() {
   const BackgroundWrapper = ({ children }) => (
     <div
       style={{
-        backgroundImage: `url(${MedLinkBackground})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
+  backgroundImage: `url(${MedLinkBackground})`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  backgroundColor: '#ffffff',
         minHeight: "100vh",
         paddingTop: "2rem",
         paddingBottom: "2rem",
@@ -41,7 +42,9 @@ export default function HealthTips() {
         marginRight: "calc(50% - 50vw)",
       }}
     >
-      {children}
+  <div style={{ maxWidth: 1100, margin: '0 auto', padding: 16, background: 'transparent', borderRadius: 12 }}>
+        {children}
+      </div>
     </div>
   );
 
