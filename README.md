@@ -67,19 +67,32 @@
   git clone <repo-url>
   cd MedLink
   ```
-  2. Install dependencies
+  2. Set-up API Keys
+  - Create a .env file to store your API keys
+  - Google maps and Gemini API keys can be obtain from your GoogleCLoud account
+  - News API key found @ https://newsapi.org/s/us-health-news-api
+  - FDA drug search API key found @ https://open.fda.gov/apis/
+  ```bash
+  REACT_APP_GOOGLE_MAPS_API_KEY=google_maps_key
+  GEMINI_API_KEY=gemini_key
+  ALLOW_UNAUTH_TRIAGE=true
+  API_PORT=3001
+  MEDICAL_NEWS_API_KEY=news_api_key
+  DRUG_SEARCH_API_KEY=fda_api_key
+  ```
+  3. Install dependencies
   ```bash
   npm install
   ```
-  3. Start the backend API (if using local endpoints)
+  4. Start the backend API (if using local endpoints)
   ```bash
   node api-server.js
   ```
-  4. Start the frontend
+  5. Start the frontend
   ```bash
   npm start
   ```
-  5. Open the app in your browser at http://localhost:3000
+  6. Open the app in your browser at http://localhost:3000
 
   ## Privacy & permissions
   - Location services are required and used only with explicit user consent and to find nearby EDs/hospitals.
