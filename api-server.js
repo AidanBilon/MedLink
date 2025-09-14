@@ -17,6 +17,7 @@ const appOrigin = authConfig.appOrigin || `http://localhost:${appPort}`;
 const cheerio = require("cheerio");
 // Use dynamic import for node-fetch in CommonJS
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const OPENFDA_BASE = "https://api.fda.gov";
 
 if (
   (!authConfig.domain || !authConfig.audience || authConfig.audience === "{yourApiIdentifier}") &&
@@ -348,6 +349,157 @@ app.get("/api/featured-food", async (_req, res) => {
     });
   }
 });
+
+// --- openFDA: Drug Label proxy with fallbacks (public GET) ---
+app.get("/api/fda/drug-label", async (req, res) => {
+  try {
+    const { q = "", limit = 10, skip = 0 } = req.query;
+
+    const apiKey = (process.env.DRUG_SEARCH_API_KEY || "").trim();
+    const paramsBase = () => {
+      const p = new URLSearchParams();
+      if (apiKey) p.set("api_key", apiKey);
+      p.set("limit", String(Math.min(Math.max(+limit || 10, 1), 50))); // 1–50
+      p.set("skip", String(Math.max(+skip || 0, 0)));
+      return p;
+    };
+
+    const OPENFDA_URL = `${OPENFDA_BASE}/drug/label.json`;
+
+    // ---------- helpers ----------
+    const looksAdvancedLucene = (s) =>
+      /[:()"*+\-]|(?:\bAND\b|\bOR\b|\bNOT\b)/i.test(s);
+
+    const escapeLucene = (s) => s.replace(/([\\"])/g, "\\$1");
+
+    const EXACT_FIELDS = [
+      "active_ingredient",
+      "openfda.generic_name",
+      "openfda.brand_name",
+      "openfda.substance_name",
+    ];
+
+    const BROAD_FIELDS = [
+      "active_ingredient",
+      "openfda.generic_name",
+      "openfda.brand_name",
+      "openfda.substance_name",
+      "indications_and_usage",
+      "purpose",
+      "warnings",
+      "dosage_and_administration",
+    ];
+
+    const buildExactSearch = (raw) => {
+      if (looksAdvancedLucene(raw)) return raw; // pass-through
+      const quoted = `"${escapeLucene(raw)}"`;
+      return EXACT_FIELDS.map((f) => `${f}:${quoted}`).join(" OR ");
+    };
+
+    // “closest possible”: split words, use prefix wildcards and broaden fields.
+    // Each word must match somewhere (AND between words); within a word, OR the fields.
+    const buildClosestSearch = (raw) => {
+      const words = raw
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 5); // keep it sane
+      if (words.length === 0) return "";
+
+      const perWordGroup = (w) => {
+        const wEsc = w.replace(/([\\"])/g, "\\$1");
+        const prefix = `${wEsc}*`; // prefix wildcard
+        // mix of unquoted prefix wildcard and quoted term for safety
+        const parts = BROAD_FIELDS.flatMap((f) => [
+          `${f}:${prefix}`,
+          `${f}:"${wEsc}"`,
+        ]);
+        return `(${parts.join(" OR ")})`;
+      };
+
+      return words.map(perWordGroup).join(" AND ");
+    };
+
+    const fetchFDA = async (searchExpr, label) => {
+      const p = paramsBase();
+      if (searchExpr) p.set("search", searchExpr);
+      const url = `${OPENFDA_URL}?${p.toString()}`;
+      const r = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!r.ok) {
+        // 404 (NOT_FOUND) is expected when no matches – treat as empty
+        if (r.status === 404) {
+          return { meta: null, results: [], status: 404, strategy: label, url };
+        }
+        const text = await r.text().catch(() => "");
+        throw Object.assign(new Error(`openFDA ${r.status} ${r.statusText}`), {
+          status: r.status,
+          detail: text,
+          url,
+          strategy: label,
+        });
+      }
+      const data = await r.json();
+      const results = data.results || [];
+      return {
+        meta: data.meta || null,
+        results,
+        status: 200,
+        strategy: label,
+        url,
+      };
+    };
+
+    // ---------- Tier 1: EXACT ----------
+    const raw = (q || "").trim();
+    let attempt = await fetchFDA(buildExactSearch(raw), "exact");
+
+    // ---------- Tier 2: CLOSEST POSSIBLE (if empty) ----------
+    if ((attempt.results?.length || 0) === 0 && raw) {
+      attempt = await fetchFDA(buildClosestSearch(raw), "closest");
+    }
+
+    // ---------- Tier 3: DEFAULT (if still empty) ----------
+    if ((attempt.results?.length || 0) === 0) {
+      const defaults = ["ibuprofen", "acetaminophen", "amoxicillin"];
+      let defaultAttempt = null;
+      for (const term of defaults) {
+        defaultAttempt = await fetchFDA(buildExactSearch(term), "default");
+        if ((defaultAttempt.results?.length || 0) > 0) {
+          attempt = { ...defaultAttempt, usedDefaultTerm: term };
+          break;
+        }
+      }
+    }
+
+    // Respond with the best we got; add some hints for the UI
+    const meta = attempt.meta || {
+      results: {
+        skip: Number(skip) || 0,
+        limit: Number(limit) || 10,
+        total: attempt.results?.length || 0,
+      },
+    };
+
+    res.json({
+      meta,
+      results: attempt.results || [],
+      strategy: attempt.strategy, // "exact" | "closest" | "default"
+      usedQuery: raw || null,
+      usedUrl: attempt.url,
+      ...(attempt.usedDefaultTerm ? { usedDefaultTerm: attempt.usedDefaultTerm } : {}),
+    });
+  } catch (err) {
+    console.error("/api/fda/drug-label error", err);
+    const status = err.status || 500;
+    return res.status(status).json({
+      error: "server_error_openfda",
+      detail: err.detail || err.message || "unknown",
+      url: err.url,
+      strategy: err.strategy,
+    });
+  }
+});
+
 
 app.listen(port, () => console.log(`API Server listening on port ${port}`));
 

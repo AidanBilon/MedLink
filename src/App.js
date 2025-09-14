@@ -1,6 +1,7 @@
 import React from "react";
 import { Router, Route, Switch } from "react-router-dom";
 import { Container } from "reactstrap";
+import DrugSearch from "./views/DrugSearch";
 
 import Loading from "./components/Loading";
 import NavBar from "./components/NavBar";
@@ -60,6 +61,14 @@ const App = () => {
                 render={() => (
                   <Container className="mt-5">
                     <HealthTips />
+                  </Container>
+                )}
+              />
+              <Route
+                path="/drug-search"
+                render={() => (
+                  <Container className="mt-5">
+                    <DrugSearch />
                   </Container>
                 )}
               />

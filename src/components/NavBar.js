@@ -83,6 +83,16 @@ const NavBar = () => {
                   Health & Wellness Tips
                 </NavLink>
               </NavItem>
+              <NavItem>
+                <NavLink
+                  tag={RouterNavLink}
+                  to="/drug-search"
+                  exact
+                  activeClassName="router-link-exact-active"
+                >
+                  FDA Drug Search
+                </NavLink>
+              </NavItem>
             </Nav>
             <Nav className="d-none d-md-block" navbar>
               {!isAuthenticated && (
