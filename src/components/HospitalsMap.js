@@ -198,8 +198,9 @@ export default function HospitalsMap() {
         const need = 3 - top3.length;
         top3 = top3.concat(remaining.slice(0, need));
       }
-      setPlaces(top3);
-      setSelectedId(top3[0]?.id || '');
+  setPlaces(top3);
+  setSelectedId(top3[0]?.id || '');
+  try { persistSelectedHospital(top3[0]?.id || ''); } catch (e) {}
       placeMarkers(posLatLng, top3);
       setState({ loading: false, error: null });
     } catch (e) {
@@ -232,7 +233,24 @@ export default function HospitalsMap() {
     }, { enableHighAccuracy: true, timeout: 10000 });
   }, [mapsStatus, runNearbySearch]);
 
-  const handleSelect = e => setSelectedId(e.target.value);
+  const handleSelect = e => {
+    const v = e.target.value;
+    setSelectedId(v);
+    persistSelectedHospital(v);
+  };
+  
+  // Persist selected hospital to localStorage so other parts of the app (scheduler)
+  // can read the current choice.
+  const persistSelectedHospital = (id) => {
+    try {
+      const sel = places.find(p => p.id === id);
+      if (sel) {
+        localStorage.setItem('selected_hospital', JSON.stringify({ id: sel.id, name: sel.name, address: sel.address }));
+      }
+    } catch (e) {
+      // ignore storage errors
+    }
+  };
 
   // Detect Google Maps default error overlay (it injects a div with class gm-style and an error message child)
   useEffect(() => {

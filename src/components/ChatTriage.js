@@ -26,6 +26,7 @@ export default function ChatTriage() {
   const listRef = useRef(null);
   const { appointments, setAppointments } = useAppointments();
   const [pendingSchedule, setPendingSchedule] = useState(null); // holds severity + summary until user clicks
+  const [pendingTopic, setPendingTopic] = useState('');
 
   const severityOrder = ['Minimal','Mild','Moderate','Concerning','Critical'];
 
@@ -73,13 +74,20 @@ export default function ChatTriage() {
     const { severity } = pendingSchedule;
     const result = computeScheduledSlot(severity);
     let newList;
+    // enrich inserted appt with selected hospital and topic if present
+    const stored = (() => { try { return JSON.parse(localStorage.getItem('selected_hospital') || 'null'); } catch { return null; } })();
+    const enrichedInserted = { ...result.inserted };
+    if (stored) enrichedInserted.hospital = stored;
+    if (pendingTopic && pendingTopic.trim()) enrichedInserted.topic = pendingTopic.trim();
+
     if (severity === 'Critical') {
-      newList = [result.inserted, ...result.updated];
+      newList = [enrichedInserted, ...result.updated.map(a=>({ ...a }))];
     } else {
-      newList = [...result.updated, result.inserted];
+      newList = [...result.updated.map(a=>({ ...a })), enrichedInserted];
     }
     setAppointments(newList);
     setPendingSchedule(null);
+    setPendingTopic('');
     // navigate to calendar page
     history.push('/calendar');
   }
@@ -160,10 +168,18 @@ export default function ChatTriage() {
                 <pre style={styles.pre}>{m.content}</pre>
                 {m.canSchedule && pendingSchedule && (
                   <div style={{ marginTop: 8 }}>
-                    <button
-                      onClick={schedulePending}
-                      style={{ background:'#2563eb', color:'#fff', border:'none', padding:'6px 12px', borderRadius:6, cursor:'pointer', fontSize:13, fontWeight:600 }}
-                    >Schedule Appointment</button>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <input
+                        placeholder="Brief topic (e.g. chest pain)"
+                        value={pendingTopic}
+                        onChange={e => setPendingTopic(e.target.value)}
+                        style={{ padding: '6px 8px', borderRadius:6, border: '1px solid #e2e8f0', fontSize:13 }}
+                      />
+                      <button
+                        onClick={schedulePending}
+                        style={{ background:'#2563eb', color:'#fff', border:'none', padding:'6px 12px', borderRadius:6, cursor:'pointer', fontSize:13, fontWeight:600 }}
+                      >Schedule Appointment</button>
+                    </div>
                   </div>
                 )}
               </div>

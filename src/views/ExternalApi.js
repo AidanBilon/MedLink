@@ -216,6 +216,12 @@ export const ExternalApiComponent = () => {
                       </button>
                       <div style={{ fontWeight: 600 }}>{a.summary}</div>
                       <div style={{ fontSize: 12, color: '#666' }}>{new Date(a.start).toLocaleString()} - {new Date(a.end).toLocaleTimeString()}</div>
+                      {a.hospital && a.hospital.name && (
+                        <div style={{ fontSize: 13, color: '#333', marginTop: 4 }}>Hospital: <strong>{a.hospital.name}</strong></div>
+                      )}
+                      {a.topic && (
+                        <div style={{ fontSize: 13, color: '#333', marginTop: 4 }}>Topic: {a.topic}</div>
+                      )}
                       <div style={{ fontSize: 13 }}>{a.description}</div>
                     </div>
                   ))
