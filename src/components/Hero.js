@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import logo from "../assets/logo.svg";
@@ -29,9 +29,20 @@ const Hero = () => {
       <img className="mb-3 app-logo" src={logo} alt="MedLink logo" width="120" />
       <h1 className="mb-4">MedLink</h1>
   <p className="lead mb-2">Describe your symptoms for basic triage guidance below.</p>
-  <p className="small text-muted mt-3 disclaimer">Disclaimer: This is informational only and not a medical diagnosis. The scheduled "Appointments" are fictitious, being used only for demonstration purposes and they will NOT be honoured at any of the example clinics. If you think this may be an emergency call 911 or go to the nearest emergency department immediately.</p>
+  <Disclaimer />
     </div>
   );
 };
+
+function Disclaimer() {
+  const [show, setShow] = useState(true);
+  if (!show) return null;
+  return (
+    <div className="small text-muted mt-3 disclaimer">
+      <button aria-label="Close disclaimer" className="disclaimer-close" onClick={() => setShow(false)}>×</button>
+      Disclaimer: This is informational only and not a medical diagnosis. The scheduled "Appointments" are fictitious, being used only for demonstration purposes and they will NOT be honoured at any of the example clinics. If you think this may be an emergency call 911 or go to the nearest emergency department immediately.
+    </div>
+  );
+}
 
 export default Hero;

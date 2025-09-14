@@ -126,6 +126,53 @@ export const ExternalApiComponent = () => {
     // Future: load events for this date from Google Calendar
   };
 
+  // Remove appointment at index for a given date key and recalculate times
+  const recomputeAppointmentsForDate = (dateKey, apptsForDate) => {
+    // Keep each appointment duration; re-flow them back-to-back starting at the earliest original start
+    if (!apptsForDate || apptsForDate.length === 0) return [];
+    // Find the earliest start among remaining appointments, or use now + 5min if none
+    let earliest = apptsForDate.reduce((min, a) => {
+      const s = new Date(a.start).getTime();
+      return min === null ? s : Math.min(min, s);
+    }, null);
+    if (earliest === null) earliest = Date.now() + 5 * 60 * 1000;
+
+    // Recreate appointments sequentially preserving each original duration
+    const rebuilt = [];
+    let cursor = new Date(earliest);
+    for (let i = 0; i < apptsForDate.length; i++) {
+      const original = apptsForDate[i];
+      const dur = new Date(original.end).getTime() - new Date(original.start).getTime();
+      const s = new Date(cursor);
+      const e = new Date(s.getTime() + (dur > 0 ? dur : 20 * 60 * 1000));
+      rebuilt.push({ ...original, start: s.toISOString(), end: e.toISOString() });
+      cursor = e;
+    }
+    return rebuilt;
+  };
+
+  const cancelAppointment = (dateKey, idx) => {
+    const dateList = appointments[dateKey] ? [...appointments[dateKey]] : [];
+    if (!dateList || idx < 0 || idx >= dateList.length) return;
+    const toRemove = dateList[idx];
+    // Confirm with user
+    // Using window.confirm for simplicity
+    const ok = window.confirm(`Are you sure you want to cancel the appointment "${toRemove.summary}" scheduled at ${new Date(toRemove.start).toLocaleString()}?`);
+    if (!ok) return;
+
+    // Remove the appointment
+    dateList.splice(idx, 1);
+
+    // Recompute times for remaining appointments on that date
+    const rebuilt = recomputeAppointmentsForDate(dateKey, dateList);
+
+    // Update local mapping and global context (flatten to array)
+    const newLocal = { ...appointments, [dateKey]: rebuilt };
+    setLocalAppointments(newLocal);
+    const flat = Object.values(newLocal).flat();
+    setAppointments(flat);
+  };
+
   return (
     <>
       <div className="mb-5">
@@ -147,46 +194,9 @@ export const ExternalApiComponent = () => {
           </Alert>
         )}
 
-        <h1>Calendar & Appointments</h1>
-        <p className="lead">Calendar & Appointments</p>
-
-        <p>
-          Connect your Google Calendar: the fields below are read-only and will
-          be populated by the assistant. When ready, press "Send to Calendar"
-          to add the event to your selected calendar.
-        </p>
+  <h1>Calendar & Appointments</h1>
 
         <div className="mt-3 d-md-flex">
-          <div style={{ minWidth: 360, marginRight: 24, padding: 12, borderRadius: 8, boxShadow: '0 2px 6px rgba(0,0,0,0.08)', background: '#fff' }}>
-            <div className="form-group">
-              <label>Calendar ID</label>
-              <input name="calendarId" className="form-control" value={form.calendarId} readOnly style={{ borderRadius:6 }} />
-            </div>
-            <div className="form-group">
-              <label>Summary</label>
-              <input name="summary" className="form-control" value={form.summary} readOnly />
-            </div>
-            <div className="form-group">
-              <label>Description</label>
-              <input name="description" className="form-control" value={form.description} readOnly />
-            </div>
-            <div className="form-group">
-              <label>Start (ISO)</label>
-              <input name="start" className="form-control" value={form.start} readOnly />
-            </div>
-            <div className="form-group">
-              <label>End (ISO)</label>
-              <input name="end" className="form-control" value={form.end} readOnly />
-            </div>
-            <div className="form-group">
-              <label>Timezone</label>
-              <input name="timezone" className="form-control" value={form.timezone} readOnly />
-            </div>
-            <Button color="primary" className="mt-2" onClick={callApi} disabled={!audience}>
-              Send to Calendar
-            </Button>
-          </div>
-
           <div style={{ display: 'flex', alignItems: 'flex-start' }}>
             <div style={{ marginLeft: 8 }}>
               <SmallCalendar startIso={form.start} onDateClick={handleDateClick} selectedDate={selectedDate} appointmentsByDate={appointments} />
@@ -196,7 +206,14 @@ export const ExternalApiComponent = () => {
                 <strong style={{ display: 'block', marginBottom: 8 }}>Appointments</strong>
                 {selectedDate && appointments[selectedDate] ? (
                   appointments[selectedDate].map((a, idx) => (
-                    <div key={idx} style={{ marginBottom: 8, padding: 8, borderRadius:6, background: '#fbfbfb' }}>
+                    <div key={idx} style={{ marginBottom: 8, padding: 8, borderRadius:6, background: '#fbfbfb', position: 'relative' }}>
+                      <button
+                        aria-label={`cancel-${idx}`}
+                        onClick={() => cancelAppointment(selectedDate, idx)}
+                        style={{ position: 'absolute', right: 8, top: 6, background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 14, color: '#999' }}
+                      >
+                        ×
+                      </button>
                       <div style={{ fontWeight: 600 }}>{a.summary}</div>
                       <div style={{ fontSize: 12, color: '#666' }}>{new Date(a.start).toLocaleString()} - {new Date(a.end).toLocaleTimeString()}</div>
                       <div style={{ fontSize: 13 }}>{a.description}</div>
