@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Container } from "reactstrap";
 import MedLinkBackground from "../assets/MedLink_Background.png"; // adjust path if needed
+import WhoLogo from "../assets/who-logo.png";
+import GovCanLogo from "../assets/gov-can-logo.png";
 
 export default function HealthTips() {
   const [featured, setFeatured] = useState(null);
@@ -24,7 +26,6 @@ export default function HealthTips() {
     })();
   }, []);
 
-  // Full-bleed background section (escapes any parent .container max-width)
   const BackgroundWrapper = ({ children }) => (
     <div
       style={{
@@ -35,7 +36,6 @@ export default function HealthTips() {
         minHeight: "100vh",
         paddingTop: "2rem",
         paddingBottom: "2rem",
-        // FULL-BLEED MAGIC:
         width: "100vw",
         marginLeft: "calc(50% - 50vw)",
         marginRight: "calc(50% - 50vw)",
@@ -65,6 +65,49 @@ export default function HealthTips() {
     );
   }
 
+  const ArticleCard = ({ children, logo, logoAlt, logoBox }) => (
+    <div
+      style={{
+        border: "1px solid #e5e7eb",
+        background: "#ffffff",
+        borderRadius: 16,
+        padding: 20,
+        marginTop: 16,
+        boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: 16,
+      }}
+    >
+      {/* left content */}
+      <div style={{ flex: 1, paddingRight: 8, minWidth: 0 }}>{children}</div>
+
+      {/* right logo */}
+      <div
+        style={{
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: logoBox.width,
+          height: logoBox.height,
+        }}
+      >
+        <img
+          src={logo}
+          alt={logoAlt || "logo"}
+          style={{
+            maxWidth: "100%",
+            maxHeight: "100%",
+            objectFit: "contain",
+            display: "block",
+          }}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <BackgroundWrapper>
       <Container>
@@ -77,15 +120,10 @@ export default function HealthTips() {
           rel="noopener noreferrer"
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          <div
-            style={{
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              borderRadius: 16,
-              padding: 20,
-              marginTop: 16,
-              boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-            }}
+          <ArticleCard
+            logo={WhoLogo}
+            logoAlt="World Health Organization"
+            logoBox={{ width: 200, height: 90 }} // WHO stays big
           >
             {featured.image && (
               <img
@@ -150,7 +188,7 @@ export default function HealthTips() {
             >
               Read on who.int →
             </p>
-          </div>
+          </ArticleCard>
         </a>
 
         {/* Canada Food Guide Article */}
@@ -160,15 +198,10 @@ export default function HealthTips() {
           rel="noopener noreferrer"
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          <div
-            style={{
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
-              borderRadius: 16,
-              padding: 20,
-              marginTop: 24,
-              boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-            }}
+          <ArticleCard
+            logo={GovCanLogo}
+            logoAlt="Government of Canada"
+            logoBox={{ width: 180, height: 80 }} // GovCan made slightly bigger
           >
             {food.image && (
               <img
@@ -194,18 +227,18 @@ export default function HealthTips() {
                 marginBottom: 6,
               }}
             >
-                <span
-                  style={{
-                    border: "1px solid #e5e7eb",
-                    borderRadius: 999,
-                    padding: "2px 8px",
-                  }}
-                >
-                  Canada • Food Guide
-                </span>
-                <time dateTime={food.published}>
-                  {new Date(food.published).toLocaleDateString()}
-                </time>
+              <span
+                style={{
+                  border: "1px solid #e5e7eb",
+                  borderRadius: 999,
+                  padding: "2px 8px",
+                }}
+              >
+                Canada • Food Guide
+              </span>
+              <time dateTime={food.published}>
+                {new Date(food.published).toLocaleDateString()}
+              </time>
             </div>
 
             <h2
@@ -233,7 +266,7 @@ export default function HealthTips() {
             >
               Read on food-guide.canada.ca →
             </p>
-          </div>
+          </ArticleCard>
         </a>
 
         <div style={{ height: 48 }} />
